@@ -1,0 +1,258 @@
+@page "/RegistroCliente"
+@page "/RegistroCliente/{ClienteId:int}"
+@inject HttpClient httpClient
+
+<EditForm Model="Cliente" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <h3>Registro de Clientes</h3>
+            </div>
+            <div class=card-body>
+
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 col-xl-4">
+                    <label>Cliente Id:</label>
+                    <div class="input-group mb-3">
+                        <InputNumber @bind-Value="Cliente.ClienteId" class="form-control" aria-describedby="BotonBuscar" />
+                        <button @onclick="Buscar" class="btn btn-outline-primary" type="button" id="BotonBuscar"><i class="oi oi-magnifying-glass" /></button>
+                    </div>
+                </div>
+
+                @*Nombres*@
+                <div class="mb-3">
+                    <label class="form-label" for="Nombres">Nombres:</label>
+                    <InputText @bind-Value="Cliente.Nombres" class="form-control" />
+                    <ValidationMessage For="@(() => Cliente.Nombres)" />
+                </div>
+
+                @*cedula*@
+                <div class="mb-3">
+                    <label class="form-label" for="cedula">Cedula:</label>
+                    <InputText @bind-Value="Cliente.cedula" class="form-control" />
+                    <ValidationMessage For="@(() => Cliente.cedula)" />
+                </div>
+
+                @*Direccion*@
+                <div class="mb-3">
+                    <label class="form-label" for="Direccion">Direcci&oacute;n</label>
+                    <InputText @bind-Value="Cliente.Direccion" class="form-control" />
+                    <ValidationMessage For="@(() => Cliente.Direccion)" />
+                </div>
+
+
+                @*DETALLE*@
+                <fieldset class="border-success border border-1">
+                    <h3>Tel&eacute;fonos del cliente</h3>
+                    <div class="row m-1">
+                        @*TipoTelefono *@
+                        <div class="col-2">
+                            <label>TipoTelefono:</label>
+                            <InputSelect class="form-select" @bind-Value="TipoTelefonoSeleccionado">
+                                <option value="0" disabled selected> [Seleccione] </option>
+                                @foreach (var tipo in TiposTelefonosList)
+                                {
+                                    <option value="@tipo.TiposTelefonoId">@tipo.Descripcion </option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        @*Telefono *@
+                        <div class="col-2">
+                            <label>Telefono</label>
+                            <InputText class="form-control" @bind-Value="TelefonoSeleccionado"></InputText>
+                        </div>
+
+                        @*Boton agregar *@
+                        <div class="col-2">
+                            <br>
+                            <button type="button" class="btn btn-primary input-group-text" @onclick="AgregarDetalle">
+                                <span class="oi oi-plus">Agregar</span>
+                            </button>
+                        </div>
+                        @if (ValidacionDetalle.Length > 0)
+                        {
+                            <label class="text-danger">@ValidacionDetalle</label>
+                        }
+                    </div>
+
+                    @*Tabla de detalles*@ 
+                        <hr />
+                        <table class="table table-bordered table-light m-1">
+                            <thead class="thead">
+                                <tr class="table">
+                                    <th>Tipo Telefono</th>
+                                    <th>Telefono</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var detalle in Cliente.ClientesDetalle)
+                                {
+                                    <tr>
+                                    <td>@( DescripcionTipo(detalle.TiposTelefonoId) )</td>
+                                        <td>@detalle.Telefono</td>
+                                        <td> <button @onclick="@(() => RemoverDetalle(detalle))"><i class="oi oi-trash" /> Eliminar</button>   </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <div class="row justify-content-between">
+                            <div class="col-4">
+                                <label>Cantidad Telefonos</label>
+                                <div class="input-group mb-3">
+                                    <span class="form-control">@Cliente.ClientesDetalle.Count()</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr /> 
+                </fieldset>
+
+            </div>
+
+            <div class="card-footer d-flex justify-content-center">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+                    <button type="submit" class="btn btn-outline-success">Guardar <i class="oi oi-document" /></button>
+                    <button type="button" class="btn btn-outline-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Mensaje.Length > 0)
+    {
+        <label class="text-danger">@Mensaje</label>
+    }
+</EditForm>
+
+
+@code {
+
+    [Parameter]
+    public int ClienteId { get; set; }
+
+    public Clientes Cliente { get; set; } = new Clientes();
+    public IEnumerable<TiposTelefonos> TiposTelefonosList { get; set; } = Enumerable.Empty<TiposTelefonos>();
+
+    public int TipoTelefonoSeleccionado { get; set; } = 0;
+    public string TelefonoSeleccionado { get; set; } = string.Empty;
+
+    public string Mensaje { get; set; } = string.Empty;
+    public string ValidacionDetalle { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarTiposTelefonos();
+
+        if (ClienteId > 0)
+        {
+            this.Cliente.ClienteId = ClienteId;
+            await Buscar();
+        }
+    }
+
+    private async Task CargarTiposTelefonos()
+    {
+        var encontrados = await httpClient.GetFromJsonAsync<IEnumerable<TiposTelefonos>>("api/TiposTelefonos");
+        if (encontrados != null)
+            TiposTelefonosList = encontrados;
+    }
+
+    public async Task Buscar()
+    {
+        var clienteEncontrado = await httpClient.GetFromJsonAsync<Clientes>($"api/Clientes/{Cliente.ClienteId}");
+        if (clienteEncontrado != null)
+        {
+            this.Cliente = clienteEncontrado;
+            StateHasChanged();
+        }
+        else
+        {
+            Mensaje = "Ticket no encontrado";
+        }
+    }
+
+    public void AgregarDetalle()
+    {
+        if (!ValidarDetalle())
+            return;
+
+        Cliente.ClientesDetalle.Add(new ClientesDetalle()
+        {
+                TiposTelefonoId = TipoTelefonoSeleccionado,
+                Telefono = TelefonoSeleccionado
+        });
+        TipoTelefonoSeleccionado = 0;
+        TelefonoSeleccionado = string.Empty;
+        StateHasChanged();
+    }
+
+    public string DescripcionTipo(int TiposTelefonoId)
+    {
+        var tipoTelefono = TiposTelefonosList.FirstOrDefault(t => t.TiposTelefonoId == TiposTelefonoId);
+
+        return tipoTelefono!.Descripcion;
+    }
+    public void RemoverDetalle(ClientesDetalle detalleRemover)
+    {
+        TipoTelefonoSeleccionado = detalleRemover.TiposTelefonoId;
+        TelefonoSeleccionado = detalleRemover.Telefono;
+
+        Cliente.ClientesDetalle.Remove(detalleRemover);
+    }
+
+    public bool ValidarDetalle()
+    {
+        ValidacionDetalle = string.Empty;
+        if (TipoTelefonoSeleccionado <= 0)
+        {
+            ValidacionDetalle = "El Tipo de teléfono es obligatorio";
+        }
+
+        if (String.IsNullOrWhiteSpace(TelefonoSeleccionado))
+        {
+            ValidacionDetalle += "El Teléfono es obligatorio";
+        }
+
+        return ValidacionDetalle.Length == 0;
+    }
+
+    public async Task Guardar()
+    {
+        using var response = await httpClient.PostAsJsonAsync("api/Clientes", Cliente);
+        if (!response.IsSuccessStatusCode)
+        {
+            Mensaje = response.ReasonPhrase ?? "error";
+            return;
+        }
+        var clienteDevuelto = await response.Content.ReadFromJsonAsync<Clientes>();
+        if (clienteDevuelto is not null)
+        {
+            Cliente = clienteDevuelto;
+            StateHasChanged();
+        }
+    }
+
+    public void Nuevo()
+    {
+        this.Cliente = new Clientes();
+        Mensaje = string.Empty;
+        ValidacionDetalle = string.Empty;
+
+        TipoTelefonoSeleccionado = 0;
+        TelefonoSeleccionado = string.Empty;
+    }
+
+    public async Task Eliminar()
+    {
+        using var response = await httpClient.DeleteAsync($"api/Clientes/{Cliente.ClienteId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            Mensaje = response.ReasonPhrase ?? "error";
+            return;
+        }
+        else
+            Nuevo();
+    }
+}

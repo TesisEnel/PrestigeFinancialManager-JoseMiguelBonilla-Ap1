@@ -1,0 +1,68 @@
+@page "/ConsultaClientes"
+@inject HttpClient httpClient
+
+<div class="card">
+    <div class="card-header">
+        <h3>Consulta de Clientes</h3>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <button type="button" @onclick="Buscar" class="btn btn-primary input-group-text">
+                <i class="oi oi-magnifying-glass " />
+            </button>
+        </div>
+        @if (Clientes is not null)
+        {
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ClienteId</th>
+                        <th>Nombres</th>
+                        <th>Cedula</th>
+                        <th>Direcci&oacute;n</th>
+                        <th>Detalle</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cliente in Clientes)
+                    {
+                        <tr>
+                            <td>@cliente.ClienteId</td>
+                            <td>@cliente.Nombres</td>
+                            <td>@cliente.cedula</td>
+                            <td>@cliente.Direccion</td>
+                            <td><a href="RegistroCliente/@cliente.ClienteId">Ver</a></td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+        }
+    </div>
+    <div class="card-footer">
+        <div class="form-row justify-content-sm-between" aria-orientation="vertical">
+            <div class="col-3">
+                <label for="CantidaRegistro" class="col-form-label"><strong>Filas</strong>&nbsp;</label>
+                <input id="CantidaRegistro" @bind-value="@conteo" disabled class="form-control" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<Clientes>? Clientes { get; set; }
+    public int conteo { get; set; }
+
+    public async Task Buscar()
+    {
+        Clientes = await httpClient.GetFromJsonAsync<List<Clientes>>($"api/Clientes");
+
+        conteo = Clientes != null ? Clientes!.Count() : 0;
+        StateHasChanged();
+
+    }
+
+}
