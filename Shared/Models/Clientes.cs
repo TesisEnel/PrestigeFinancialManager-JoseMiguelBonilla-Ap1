@@ -17,8 +17,6 @@ namespace PrestigeFinancial.Shared.Models
         [ForeignKey("ClienteId")]
         public ICollection<ClientesDetalle> ClientesDetalle { get; set; } = new List<ClientesDetalle>();
 
-        [ForeignKey("ClienteId")]
-        public ICollection<Prestamos> Prestamos { get; set; } = new List<Prestamos>();
     }
 
 }

@@ -1,0 +1,138 @@
+@page "/RegistroPrestamos"
+@page "/RegistroPrestamos/{PrestamoId:int}"
+@inject HttpClient httpClient
+
+<EditForm Model="Prestamos" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <h3>Registro de Prestamos.</h3>
+            </div>
+            <div class=card-body>
+
+                @*Prestamos Id:*@
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 col-xl-4">
+                    <label>Prestamos Id:</label>
+                    <div class="input-group mb-3">
+                        <InputNumber @bind-Value="Prestamos.PrestamoId" class="form-control" aria-describedby="BotonBuscar" />
+                        <button @onclick="Buscar" class="btn btn-outline-primary" type="button" id="BotonBuscar"><i class="oi oi-magnifying-glass" /></button>
+                    </div>
+                </div>
+
+                @*Fecha:*@
+                <div class="mb-3">
+                    <label class="form-label" for="Fecha">Fecha de desembolso:</label>
+                    <InputDate @bind-Value="Prestamos.FechaPrestamo" class="form-control" />
+                    <ValidationMessage For="@(() => Prestamos.FechaPrestamo)" />
+                </div>
+
+                @*SolicitadoPor*@
+                <div class="mb-3">
+                    <label class="form-label" for="Deudor">Solicitado Por:</label>
+                    <InputText @bind-Value="Prestamos.Deudor" class="form-control" />
+                    <ValidationMessage For="@(() => Prestamos.Deudor)" />
+                </div>
+
+                @*MontoSolicitado*@
+                <div class="col-md-6">
+                    <label class="form-label" for="MontoSolicitado">Monto del Prestamo:</label>
+                    <InputNumber @bind-Value="Prestamos.MontoSolicitado" class="form-control" />
+                    <ValidationMessage For="@(() => Prestamos.MontoSolicitado)" />
+                </div>
+                @*Interes*@
+                <div class="col-md-6">
+                    <label class="form-label" for="Interes">Tasa de interes</label>
+                    <InputNumber @bind-Value="Prestamos.Interes" class="form-control" />
+                    <ValidationMessage For="@(() => Prestamos.Interes)" />
+                </div>
+                @*Lapso de pago*@
+                <div class="col-md-6">
+                    <label class="form-label" for="Coutas">Coutas</label>
+                    <InputNumber @bind-Value="Prestamos.Coutas" class="form-control" />
+                    <ValidationMessage For="@(() => Prestamos.Coutas)" />
+                </div>
+
+            </div>
+            <div class="card-footer d-flex justify-content-center">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+                    <button type="submit" class="btn btn-outline-success">Guardar <i class="oi oi-document" /></button>
+                    <button type="button" class="btn btn-outline-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</EditForm>
+<label>@Mensaje</label>
+
+@code {
+
+    [Parameter]
+
+    public int PrestamoId { get; set; }
+
+    public Prestamos Prestamos { get; set; } = new Prestamos();
+
+    public string Mensaje { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(PrestamoId>0)
+        {
+            this.Prestamos.PrestamoId = PrestamoId;
+            await Buscar();
+        }
+    }
+
+    public async Task Buscar()
+    {
+        var PrestamosEncontrado = await httpClient.GetFromJsonAsync<Prestamos>($"api/Prestamos/{Prestamos.PrestamoId}");
+        if (PrestamosEncontrado != null)
+        {
+            this.Prestamos = PrestamosEncontrado;
+            StateHasChanged();
+        }
+        else
+        {
+            Mensaje = "Prestamos no encontrado";
+        }
+    }
+
+    public async Task Guardar()
+    {
+        using var response = await httpClient.PostAsJsonAsync("api/Prestamos", Prestamos);
+        if (!response.IsSuccessStatusCode)
+        {
+            Mensaje = response.ReasonPhrase ?? "error";
+            return;
+        }
+        var PrestamosDevuelto = await response.Content.ReadFromJsonAsync<Prestamos>();
+        if (PrestamosDevuelto is not null)
+        {
+            Prestamos = PrestamosDevuelto;
+            StateHasChanged();
+        }
+    }
+
+    public void Nuevo()
+    {
+        this.Prestamos = new Prestamos();
+        Mensaje = string.Empty;
+    }
+
+    public async Task Eliminar()
+    {
+        using var response = await httpClient.DeleteAsync($"api/Prestamos/{Prestamos.PrestamoId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            Mensaje = response.ReasonPhrase ?? "error";
+            return;
+        }
+        else
+            Nuevo();
+    }
+}

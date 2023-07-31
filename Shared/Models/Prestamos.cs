@@ -12,6 +12,9 @@ namespace PrestigeFinancial.Shared.Models
 
         [Required(ErrorMessage ="El nombre del deudor es requerido")]
         public string? Deudor { get; set; }
+
+        [Required(ErrorMessage ="La Cedula del deudor es requerido")]
+        public string? Cedula { get; set; }
         public DateTime FechaPrestamo { get; set; } = DateTime.Now;
 
         [Required(ErrorMessage ="El monto es requerido")]

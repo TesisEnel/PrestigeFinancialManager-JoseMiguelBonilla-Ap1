@@ -73,6 +73,10 @@ namespace PrestigeFinancial.Server.Migrations
                     b.Property<double>("Balance")
                         .HasColumnType("REAL");
 
+                    b.Property<string>("Cedula")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("ClienteId")
                         .HasColumnType("INTEGER");
 
@@ -102,8 +106,6 @@ namespace PrestigeFinancial.Server.Migrations
                         .HasColumnType("REAL");
 
                     b.HasKey("PrestamoId");
-
-                    b.HasIndex("ClienteId");
 
                     b.ToTable("Prestamos");
                 });
@@ -181,20 +183,9 @@ namespace PrestigeFinancial.Server.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PrestigeFinancial.Shared.Models.Prestamos", b =>
-                {
-                    b.HasOne("PrestigeFinancial.Shared.Models.Clientes", null)
-                        .WithMany("Prestamos")
-                        .HasForeignKey("ClienteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("PrestigeFinancial.Shared.Models.Clientes", b =>
                 {
                     b.Navigation("ClientesDetalle");
-
-                    b.Navigation("Prestamos");
                 });
 #pragma warning restore 612, 618
         }

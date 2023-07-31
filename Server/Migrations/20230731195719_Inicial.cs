@@ -30,6 +30,29 @@ namespace PrestigeFinancial.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Prestamos",
+                columns: table => new
+                {
+                    PrestamoId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Deudor = table.Column<string>(type: "TEXT", nullable: false),
+                    Cedula = table.Column<string>(type: "TEXT", nullable: false),
+                    FechaPrestamo = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    MontoSolicitado = table.Column<double>(type: "REAL", nullable: false),
+                    MontoTotal = table.Column<double>(type: "REAL", nullable: false),
+                    Interes = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Coutas = table.Column<int>(type: "INTEGER", nullable: false),
+                    MontoCoutas = table.Column<double>(type: "REAL", nullable: false),
+                    Balance = table.Column<double>(type: "REAL", nullable: false),
+                    Restante = table.Column<double>(type: "REAL", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Prestamos", x => x.PrestamoId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TiposPrestamos",
                 columns: table => new
                 {
@@ -76,34 +99,6 @@ namespace PrestigeFinancial.Server.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "Prestamos",
-                columns: table => new
-                {
-                    PrestamoId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Deudor = table.Column<string>(type: "TEXT", nullable: false),
-                    FechaPrestamo = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    MontoSolicitado = table.Column<double>(type: "REAL", nullable: false),
-                    MontoTotal = table.Column<double>(type: "REAL", nullable: false),
-                    Interes = table.Column<decimal>(type: "TEXT", nullable: false),
-                    Coutas = table.Column<int>(type: "INTEGER", nullable: false),
-                    MontoCoutas = table.Column<double>(type: "REAL", nullable: false),
-                    Balance = table.Column<double>(type: "REAL", nullable: false),
-                    Restante = table.Column<double>(type: "REAL", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Prestamos", x => x.PrestamoId);
-                    table.ForeignKey(
-                        name: "FK_Prestamos_Clientes_ClienteId",
-                        column: x => x.ClienteId,
-                        principalTable: "Clientes",
-                        principalColumn: "ClienteId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.InsertData(
                 table: "TiposPrestamos",
                 columns: new[] { "TiposPrestamoId", "DescripcionPrestamo" },
@@ -127,11 +122,6 @@ namespace PrestigeFinancial.Server.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ClientesDetalle_ClienteId",
                 table: "ClientesDetalle",
-                column: "ClienteId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Prestamos_ClienteId",
-                table: "Prestamos",
                 column: "ClienteId");
         }
 

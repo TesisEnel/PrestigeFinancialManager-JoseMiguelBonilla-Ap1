@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PrestigeFinancial.Server.DAL;
 using PrestigeFinancial.Shared.Models;
 
-namespace prestamoApp.Server.Controllers;
+namespace PrestigeFinancial.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -20,24 +20,22 @@ public class PrestamosController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Prestamos>>> GetPrestamos()
     {
-        if (_context.Prestamos == null)
-        {
-            return NotFound();
-        }
+      if (_context.Prestamos == null)
+      {
+          return NotFound();
+      }
         return await _context.Prestamos.ToListAsync();
     }
 
     // GET: api/Prestamos/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Prestamos>> Getprestamo(int id)
+    public async Task<ActionResult<Prestamos>> Getprestamos(int id)
     {
-        if (_context.Prestamos == null)
-        {
-            return NotFound();
-        }
-        var Prestamos = await _context.Prestamos
-            .Where(c => c.PrestamoId == id)
-            .FirstOrDefaultAsync();
+      if (_context.Prestamos == null)
+      {
+          return NotFound();
+      }
+        var Prestamos = await _context.Prestamos.FindAsync(id);
 
         if (Prestamos == null)
         {
@@ -49,16 +47,16 @@ public class PrestamosController : ControllerBase
 
     // POST: api/Prestamos
     [HttpPost]
-    public async Task<ActionResult<Prestamos>> Postprestamo(Prestamos prestamo)
+    public async Task<ActionResult<Prestamos>> PostPrestamos(Prestamos Prestamos)
     {
-        if (!PrestamosExists(prestamo.PrestamoId))
-            _context.Prestamos.Add(prestamo);
+        if (!PrestamosExists(Prestamos.PrestamoId))
+            _context.Prestamos.Add(Prestamos);
         else
-            _context.Prestamos.Update(prestamo);
+            _context.Prestamos.Update(Prestamos);
 
         await _context.SaveChangesAsync();
 
-        return Ok(prestamo);
+        return Ok(Prestamos);
     }
 
     // DELETE: api/Prestamos/5
