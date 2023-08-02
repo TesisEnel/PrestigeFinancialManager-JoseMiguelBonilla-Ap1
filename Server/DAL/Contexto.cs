@@ -8,6 +8,8 @@ namespace PrestigeFinancial.Server.DAL
         public Contexto(DbContextOptions<Contexto> options) : base(options) {}
         public DbSet<Clientes> Clientes {get;set;}        
         public DbSet<ClientesDetalle> ClientesDetalle {get;set;}
+        public DbSet<Pagos> Pagos {get;set;}        
+        public DbSet<PagosDetalle> PagosDetalle {get;set;}
         public DbSet<Prestamos> Prestamos {get;set;}
         public DbSet<TiposTelefonos> TiposTelefonos {get;set;}
         public DbSet<TiposPrestamos> TiposPrestamos {get;set;}

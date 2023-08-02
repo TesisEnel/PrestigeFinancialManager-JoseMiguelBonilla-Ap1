@@ -11,8 +11,8 @@ using PrestigeFinancial.Server.DAL;
 namespace PrestigeFinancial.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20230802225742_createincial")]
-    partial class createincial
+    [Migration("20230802233038_Inicial")]
+    partial class Inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,6 +65,52 @@ namespace PrestigeFinancial.Server.Migrations
                     b.HasIndex("ClienteId");
 
                     b.ToTable("ClientesDetalle");
+                });
+
+            modelBuilder.Entity("PrestigeFinancial.Shared.Models.Pagos", b =>
+                {
+                    b.Property<int>("PagoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Concepto")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Monto")
+                        .HasColumnType("REAL");
+
+                    b.HasKey("PagoId");
+
+                    b.ToTable("Pagos");
+                });
+
+            modelBuilder.Entity("PrestigeFinancial.Shared.Models.PagosDetalle", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("PagoId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PrestamoId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("ValorPagado")
+                        .HasColumnType("REAL");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PagoId");
+
+                    b.ToTable("PagosDetalle");
                 });
 
             modelBuilder.Entity("PrestigeFinancial.Shared.Models.Prestamos", b =>
@@ -172,9 +218,21 @@ namespace PrestigeFinancial.Server.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PrestigeFinancial.Shared.Models.PagosDetalle", b =>
+                {
+                    b.HasOne("PrestigeFinancial.Shared.Models.Pagos", null)
+                        .WithMany("PagosDetalle")
+                        .HasForeignKey("PagoId");
+                });
+
             modelBuilder.Entity("PrestigeFinancial.Shared.Models.Clientes", b =>
                 {
                     b.Navigation("ClientesDetalle");
+                });
+
+            modelBuilder.Entity("PrestigeFinancial.Shared.Models.Pagos", b =>
+                {
+                    b.Navigation("PagosDetalle");
                 });
 #pragma warning restore 612, 618
         }
