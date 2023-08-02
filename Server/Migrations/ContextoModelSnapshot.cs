@@ -73,19 +73,11 @@ namespace PrestigeFinancial.Server.Migrations
                     b.Property<double>("Balance")
                         .HasColumnType("REAL");
 
-                    b.Property<string>("Cedula")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("ClienteId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Coutas")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Deudor")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("FechaPrestamo")
                         .HasColumnType("TEXT");
@@ -93,17 +85,11 @@ namespace PrestigeFinancial.Server.Migrations
                     b.Property<decimal>("Interes")
                         .HasColumnType("TEXT");
 
-                    b.Property<double>("MontoCoutas")
-                        .HasColumnType("REAL");
-
                     b.Property<double>("MontoSolicitado")
                         .HasColumnType("REAL");
 
-                    b.Property<double>("MontoTotal")
-                        .HasColumnType("REAL");
-
-                    b.Property<double>("Restante")
-                        .HasColumnType("REAL");
+                    b.Property<string>("TipoPrestamo")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("PrestamoId");
 

@@ -49,10 +49,10 @@ public class PrestamosController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Prestamos>> PostPrestamos(Prestamos Prestamos)
     {
-        if (!PrestamosExists(Prestamos.PrestamoId))
-            _context.Prestamos.Add(Prestamos);
-        else
+        if (PrestamosExists(Prestamos.PrestamoId))
             _context.Prestamos.Update(Prestamos);
+        else
+            _context.Prestamos.Add(Prestamos);
 
         await _context.SaveChangesAsync();
 

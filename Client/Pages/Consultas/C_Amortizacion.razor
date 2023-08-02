@@ -6,20 +6,20 @@
                 <h3>Calculadora de Amortización</h3>
             </div>
             <div class=card-body>
-                @*prestamoInicial:*@
+                @*monto:*@
                 <div class="mb-3">
                     <label class="form-label" for="Fecha">Monto del prestamo:</label>
-                        <input @bind="prestamoInicial" type="number" />
+                        <input @bind="monto" type="number" />
                 </div>
-                @*tasaInteresAnual*@
+                @*tasa*@
                 <div class="mb-3">
-                    <label class="form-label" for="tasaInteresAnual"> Tasa de interes:</label>
-                        <input @bind="tasaInteresAnual" type="number" />
+                    <label class="form-label" for="tasa"> Tasa de interes:</label>
+                        <input @bind="tasa" type="number" />
                 </div>
-                @*plazoMeses*@
+                @*tiempo*@
                 <div class="col-md-6">
-                    <label class="form-label" for="plazoMeses">Plazo en meses :</label>
-                        <input @bind="plazoMeses" type="number" />
+                    <label class="form-label" for="tiempo">Plazo en meses :</label>
+                        <input @bind="tiempo" type="number" />
                 </div>
             </div>
             <div class="card-footer d-flex justify-content-center">
@@ -39,10 +39,10 @@
                                 <thead>
                                     <tr>
                                         <th>Mes</th>
-                                        <th>Saldo</th>
+                                        <th>Couta</th>
                                         <th>Pago Mensual</th>
                                         <th>Intereses</th>
-                                        <th>Capital</th>
+                                        <th>Balance</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -51,10 +51,10 @@
                                     {
                                         <tr>
                                             <td>@pago.Mes</td>
-                                            <td>@pago.Saldo</td>
-                                            <td>@pago.PagoMensual</td>
-                                            <td>@pago.Intereses</td>
+                                            <td>@pago.Cuota</td>
                                             <td>@pago.Capital</td>
+                                            <td>@pago.Interes</td>
+                                            <td>@pago.Balance</td>
                                         </tr>
                                     }
 
@@ -74,43 +74,67 @@
 
 
 @code {
-    private double prestamoInicial;
-    private double tasaInteresAnual;
-    private int plazoMeses;
+    private double monto;
+    private double tasa;
+    private int tiempo;
     private List<PagoAmortizacion> tablaAmortizacion;
     private bool amortizacionCalculada;
 
+    public class Amortizacion
+    {
+        public int tiempo { get; set; }
+        public double tasa { get; set; }
+        public double monto { get; set; }
+
+    }
+
     private class PagoAmortizacion
     {
-        public int Mes { get; set; }
-        public double Saldo { get; set; }
-        public double PagoMensual { get; set; }
-        public double Intereses { get; set; }
-        public decimal InteresFuncional { get; set; }   
+       public int Mes { get; set; }
+        public double Cuota { get; set; }
         public double Capital { get; set; }
+        public double Interes { get; set; }
+        public double Balance { get; set; }
     }
+    private double GetMonto(double monto, double tasa)
+    {
+        double tasaFuncional = tasa /100;
+        double InteresFuncional = tasaFuncional * monto;
+        double MontoTotal = InteresFuncional + monto ;
+
+        return MontoTotal;
+    }
+    private double GetCuota(double MontoTotal, int tiempo)
+    {
+        return MontoTotal / tiempo ;
+    }
+    private double GetInteres(double monto, double tasa)
+    {
+        return monto * tasa ;
+    }
+
 
     private void CalcularAmortizacion()
     {
-
+        var amortizacion = new Amortizacion();
         tablaAmortizacion = new List<PagoAmortizacion>();
-        double saldo = prestamoInicial;
-        double tasaInteresMensual = (tasaInteresAnual / 12) / 100;
-        double pagoMensual = prestamoInicial * tasaInteresMensual / (1 - Math.Pow(1 + tasaInteresMensual, -plazoMeses));
-
-        for (int mes = 1; mes <= plazoMeses; mes++)
+        var MontoTotal = GetMonto(monto,tasa);
+        var MontoCoutas = GetCuota(MontoTotal, tiempo);
+        var MontoInteres = GetInteres(monto,tasa);
+        var balance = MontoTotal;
+        for (int i = 1; i <= tiempo; i++)
         {
-            double intereses = saldo * tasaInteresMensual;
-            double capital = pagoMensual - intereses;
-            saldo = capital;
+            var interes = balance * (tasa / 100 / 12);
+            var capital = MontoCoutas -interes ;
+            balance -= capital;
 
             tablaAmortizacion.Add(new PagoAmortizacion
             {
-                Mes = mes,
-                Saldo = saldo,
-                PagoMensual = pagoMensual,
-                Intereses = intereses,
-                Capital = capital
+                Mes = i,
+                Cuota = MontoCoutas,
+                Capital = MontoTotal,
+                Interes = MontoInteres,
+                Balance = balance
             });
         }
 

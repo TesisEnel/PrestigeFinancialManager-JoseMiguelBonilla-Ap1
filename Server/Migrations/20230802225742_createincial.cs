@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PrestigeFinancial.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial : Migration
+    public partial class createincial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,16 +36,12 @@ namespace PrestigeFinancial.Server.Migrations
                     PrestamoId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Deudor = table.Column<string>(type: "TEXT", nullable: false),
-                    Cedula = table.Column<string>(type: "TEXT", nullable: false),
                     FechaPrestamo = table.Column<DateTime>(type: "TEXT", nullable: false),
                     MontoSolicitado = table.Column<double>(type: "REAL", nullable: false),
-                    MontoTotal = table.Column<double>(type: "REAL", nullable: false),
                     Interes = table.Column<decimal>(type: "TEXT", nullable: false),
                     Coutas = table.Column<int>(type: "INTEGER", nullable: false),
-                    MontoCoutas = table.Column<double>(type: "REAL", nullable: false),
                     Balance = table.Column<double>(type: "REAL", nullable: false),
-                    Restante = table.Column<double>(type: "REAL", nullable: false)
+                    TipoPrestamo = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {

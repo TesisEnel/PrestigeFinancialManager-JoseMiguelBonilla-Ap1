@@ -29,11 +29,16 @@
                 </div>
 
                 @*SolicitadoPor*@
-                <div class="mb-3">
-                    <label class="form-label" for="Deudor">Solicitado Por:</label>
-                    <InputText @bind-Value="Prestamos.Deudor" class="form-control" />
-                    <ValidationMessage For="@(() => Prestamos.Deudor)" />
-                </div>
+                        <div class="col-2">
+                            <label>Solicitado Por:</label>
+                            <InputSelect class="form-select" @bind-Value="Prestamos.ClienteId">
+                                <option value="0" disabled selected> [Seleccione] </option>
+                                @foreach (var cliente in ListClientes)
+                                {
+                                    <option value="@cliente.ClienteId">@cliente.Nombres : @cliente.cedula  </option>
+                                }
+                            </InputSelect>
+                        </div>
 
                 @*MontoSolicitado*@
                 <div class="col-md-6">
@@ -78,6 +83,7 @@
     public Prestamos Prestamos { get; set; } = new Prestamos();
 
     public string Mensaje { get; set; } = string.Empty;
+    public List<Clientes> ListClientes { get; set; } = new List<Clientes>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -86,6 +92,7 @@
             this.Prestamos.PrestamoId = PrestamoId;
             await Buscar();
         }
+        this.ListClientes= await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
     }
 
     public async Task Buscar()
@@ -116,6 +123,7 @@
             Prestamos = PrestamosDevuelto;
             StateHasChanged();
         }
+        Nuevo();
     }
 
     public void Nuevo()
