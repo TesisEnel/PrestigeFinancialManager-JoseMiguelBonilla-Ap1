@@ -29,13 +29,13 @@
                 </div>
 
                 @*SolicitadoPor*@
-                        <div class="col-2">
+                        <div class="col-md-6">
                             <label>Solicitado Por:</label>
                             <InputSelect class="form-select" @bind-Value="Prestamos.ClienteId">
                                 <option value="0" disabled selected> [Seleccione] </option>
                                 @foreach (var cliente in ListClientes)
                                 {
-                                    <option value="@cliente.ClienteId">@cliente.Nombres : @cliente.cedula  </option>
+                                    <option value="@cliente.ClienteId">@cliente.Nombres | Cedula: @cliente.cedula  | Direccion : @cliente.Direccion </option>
                                 }
                             </InputSelect>
                         </div>

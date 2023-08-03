@@ -22,7 +22,6 @@ namespace PrestigeFinancial.Shared.Models
         public double Monto { get; set; }
 
         [ForeignKey("PagoId")]
-
         public virtual List<PagosDetalle>? PagosDetalle {get;  set;} = new List<PagosDetalle>();
 
     }
