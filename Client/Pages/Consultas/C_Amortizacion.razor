@@ -39,8 +39,8 @@
                                 <thead>
                                     <tr>
                                         <th>Mes</th>
-                                        <th>Couta</th>
-                                        <th>Pago Mensual</th>
+                                        <th>couta</th>
+                                        <th>Capital</th>
                                         <th>Intereses</th>
                                         <th>Balance</th>
                                         <th></th>
@@ -96,21 +96,39 @@
         public double Interes { get; set; }
         public double Balance { get; set; }
     }
-    private double GetMonto(double monto, double tasa)
+    private double GetMonto()
     {
-        double tasaFuncional = tasa /100;
-        double InteresFuncional = tasaFuncional * monto;
-        double MontoTotal = InteresFuncional + monto ;
+        return monto;
+    }
 
-        return MontoTotal;
-    }
-    private double GetCuota(double MontoTotal, int tiempo)
+    private double GetTasa()
     {
-        return MontoTotal / tiempo ;
+        return tasa;
     }
-    private double GetInteres(double monto, double tasa)
+
+    private double GetTiempo()
     {
-        return monto * tasa ;
+        return tiempo;
+    }
+    private double GetCuota(double monto, double tasa , int tiempo)
+    {
+        double tasamensual = tasa  / 100 / 12;
+        double factor = (Math.Pow(1 + tasamensual, tiempo) * tasamensual) / (Math.Pow(1 + tasamensual, tiempo) - 1);
+        return monto * factor ;
+    }
+    public void SetMonto(double _monto)
+    {
+        monto = _monto;
+    }
+
+    public void SetTasa(double _tasa)
+    {
+        tasa = _tasa;
+    }
+
+    public void SetTiempo(int _tiempo)
+    {
+        tiempo = _tiempo;
     }
 
 
@@ -118,23 +136,23 @@
     {
         var amortizacion = new Amortizacion();
         tablaAmortizacion = new List<PagoAmortizacion>();
-        var MontoTotal = GetMonto(monto,tasa);
-        var MontoCoutas = GetCuota(MontoTotal, tiempo);
-        var MontoInteres = GetInteres(monto,tasa);
-        var balance = MontoTotal;
+        var couta = GetCuota(monto,tasa, tiempo);
+        var balance = monto;
+        double interes , capital ;
+
         for (int i = 1; i <= tiempo; i++)
         {
-            var interes = balance * (tasa / 100 / 12);
-            var capital = MontoCoutas -interes ;
+            interes = balance * (tasa / 100 / 12 );
+            capital = couta - interes;
             balance -= capital;
 
             tablaAmortizacion.Add(new PagoAmortizacion
             {
                 Mes = i,
-                Cuota = MontoCoutas,
-                Capital = MontoTotal,
-                Interes = MontoInteres,
-                Balance = balance
+                Cuota = couta,
+                Capital = capital,
+                Interes = interes,
+                Balance = balance,
             });
         }
 

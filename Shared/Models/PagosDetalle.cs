@@ -5,7 +5,7 @@ namespace PrestigeFinancial.Shared.Models
     public class PagosDetalle
     {
         [Key]
-        public int Id { get; set; }
+        public int DetalleId { get; set; }
 
         public int? PagoId { get; set; }
 

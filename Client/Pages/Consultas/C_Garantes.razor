@@ -1,9 +1,9 @@
-@page "/ConsultaClientes"
+@page "/ConsultaGarantes"
 @inject HttpClient httpClient
 
 <div class="card">
     <div class="card-header">
-        <h3>Consulta de Clientes</h3>
+        <h3>Consulta de Garantes</h3>
     </div>
 
     <div class="card-body">
@@ -12,28 +12,31 @@
                 <i class="oi oi-magnifying-glass " />
             </button>
         </div>
-        @if (Clientes is not null)
+        @if (Garantes is not null)
         {
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>ClienteId</th>
+                        <th>GaranteId</th>
                         <th>Nombres</th>
                         <th>Cedula</th>
                         <th>Direcci&oacute;n</th>
+                        <th>Telefono</th>
                         <th>Detalle</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var cliente in Clientes)
+                    @foreach (var garante in Garantes)
                     {
                         <tr>
-                            <td>@cliente.ClienteId</td>
-                            <td>@cliente.Nombres</td>
-                            <td>@cliente.cedula</td>
-                            <td>@cliente.Direccion</td>
-                            <td><a href="RegistroCliente/@cliente.ClienteId">Ver</a></td>
+                            <td>@garante.GaranteId</td>
+                            <td>@garante.Nombres</td>
+                            <td>@garante.cedula</td>
+                            <td>@garante.Direccion</td>
+                            <td>@garante.Telefono</td>
+
+                            <td><a href="RegistroGarantes/@garante.GaranteId">Ver</a></td>
                         </tr>
                     }
 
@@ -45,7 +48,7 @@
     <div class="card-footer">
         <div class="form-row justify-content-sm-between" aria-orientation="vertical">
             <div class="col-3">
-                <label for="CantidaRegistro" class="col-form-label"><strong>Total de clientes registrados</strong>&nbsp;</label>
+                <label for="CantidaRegistro" class="col-form-label"><strong>Total de garantes registrados</strong>&nbsp;</label>
                 <input id="CantidaRegistro" @bind-value="@conteo" disabled class="form-control" />
             </div>
         </div>
@@ -53,14 +56,14 @@
 </div>
 
 @code {
-    public List<Clientes>? Clientes { get; set; }
+    public List<Garantes>? Garantes { get; set; }
     public int conteo { get; set; }
 
     public async Task Buscar()
     {
-        Clientes = await httpClient.GetFromJsonAsync<List<Clientes>>($"api/Clientes");
+        Garantes = await httpClient.GetFromJsonAsync<List<Garantes>>($"api/Garantes");
 
-        conteo = Clientes != null ? Clientes!.Count() : 0;
+        conteo = Garantes != null ? Garantes!.Count() : 0;
         StateHasChanged();
 
     }

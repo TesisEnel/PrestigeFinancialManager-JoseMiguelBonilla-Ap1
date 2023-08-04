@@ -40,6 +40,17 @@
                             </InputSelect>
                         </div>
 
+                @*Garante del prestamo*@
+                        <div class="col-md-6">
+                            <label>Garante del prestamo:</label>
+                            <InputSelect class="form-select" @bind-Value="Prestamos.GaranteId">
+                                <option value="0" disabled selected> [Seleccione] </option>
+                                @foreach (var garante in ListGarantes)
+                                {
+                                    <option value="@garante.GaranteId">@garante.Nombres | Cedula: @garante.cedula  | Direccion : @garante.Direccion </option>
+                                }
+                            </InputSelect>
+                        </div>
                 @*MontoSolicitado*@
                 <div class="col-md-6">
                     <label class="form-label" for="MontoSolicitado">Monto del Prestamo:</label>
@@ -54,7 +65,7 @@
                 </div>
                 @*Lapso de pago*@
                 <div class="col-md-6">
-                    <label class="form-label" for="Coutas">Coutas</label>
+                    <label class="form-label" for="Coutas">Coutas expresadas en meses</label>
                     <InputNumber @bind-Value="Prestamos.Coutas" class="form-control" />
                     <ValidationMessage For="@(() => Prestamos.Coutas)" />
                 </div>
@@ -84,6 +95,7 @@
 
     public string Mensaje { get; set; } = string.Empty;
     public List<Clientes> ListClientes { get; set; } = new List<Clientes>();
+    public List<Garantes> ListGarantes { get; set; } = new List<Garantes>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,6 +105,8 @@
             await Buscar();
         }
         this.ListClientes= await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+        this.ListGarantes= await httpClient.GetFromJsonAsync<List<Garantes>>("api/Garantes");
+
     }
 
     public async Task Buscar()

@@ -1,0 +1,147 @@
+@page "/RegistroGarantes"
+@page "/RegistroGarantes/{GaranteId:int}"
+@inject HttpClient httpClient
+
+<EditForm Model="Garantes" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <h3>Registro de Garantes.</h3>
+            </div>
+            <div class=card-body>
+
+                @*Garantes Id:*@
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 col-xl-4">
+                    <label>Garantes Id:</label>
+                    <div class="input-group mb-3">
+                        <InputNumber @bind-Value="Garantes.GaranteId" class="form-control" aria-describedby="BotonBuscar" />
+                        <button @onclick="Buscar" class="btn btn-outline-primary" type="button" id="BotonBuscar"><i class="oi oi-magnifying-glass" /></button>
+                    </div>
+                </div>
+                @*Nombres*@
+                <div class="mb-3">
+                    <label class="form-label" for="Nombres">Nombres:</label>
+                    <InputText @bind-Value="Garantes.Nombres" class="form-control" />
+                    <ValidationMessage For="@(() => Garantes.Nombres)" />
+                </div>
+
+                @*cedula*@
+                <div class="mb-3">
+                    <label class="form-label" for="cedula">Cedula:</label>
+                    <InputText @bind-Value="Garantes.cedula" class="form-control" />
+                    <ValidationMessage For="@(() => Garantes.cedula)" />
+                </div>
+
+                @*Direccion*@
+                <div class="mb-3">
+                    <label class="form-label" for="Direccion">Direcci&oacute;n</label>
+                    <InputText @bind-Value="Garantes.Direccion" class="form-control" />
+                    <ValidationMessage For="@(() => Garantes.Direccion)" />
+                </div>
+
+                @*Telefono*@
+                <div class="mb-3">
+                    <label class="form-label" for="Telefono">Telefono</label>
+                    <InputText @bind-Value="Garantes.Telefono" class="form-control" />
+                    <ValidationMessage For="@(() => Garantes.Telefono)" />
+                </div>
+
+                @*Garantiza al deudor*@
+                        <div class="mb-3">
+                            <label>Garantiza al deudor :</label>
+                            <InputSelect class="form-select" @bind-Value="Garantes.ClienteId">
+                                <option value="0" disabled selected> [Seleccione] </option>
+                                @foreach (var cliente in ListClientes)
+                                {
+                                    <option value="@cliente.ClienteId">@cliente.Nombres | Cedula: @cliente.cedula  | Direccion : @cliente.Direccion </option>
+                                }
+                            </InputSelect>
+                        </div>
+
+            </div>
+            <div class="card-footer d-flex justify-content-center">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+                    <button type="submit" class="btn btn-outline-success">Guardar <i class="oi oi-document" /></button>
+                    <button type="button" class="btn btn-outline-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash" /></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</EditForm>
+<label>@Mensaje</label>
+
+@code {
+
+    [Parameter]
+
+    public int GaranteId { get; set; }
+
+    public Garantes Garantes { get; set; } = new Garantes();
+
+    public string Mensaje { get; set; } = string.Empty;
+    public List<Clientes> ListClientes { get; set; } = new List<Clientes>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(GaranteId>0)
+        {
+            this.Garantes.GaranteId = GaranteId;
+            await Buscar();
+        }
+        this.ListClientes= await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+    }
+
+    public async Task Buscar()
+    {
+        var GarantesEncontrado = await httpClient.GetFromJsonAsync<Garantes>($"api/Garantes/{Garantes.GaranteId}");
+        if (GarantesEncontrado != null)
+        {
+            this.Garantes = GarantesEncontrado;
+            StateHasChanged();
+        }
+        else
+        {
+            Mensaje = "Garantes no encontrado";
+        }
+    }
+
+    public async Task Guardar()
+    {
+        using var response = await httpClient.PostAsJsonAsync("api/Garantes", Garantes);
+        if (!response.IsSuccessStatusCode)
+        {
+            Mensaje = response.ReasonPhrase ?? "error";
+            return;
+        }
+        var GarantesDevuelto = await response.Content.ReadFromJsonAsync<Garantes>();
+        if (GarantesDevuelto is not null)
+        {
+            Garantes = GarantesDevuelto;
+            StateHasChanged();
+        }
+        Nuevo();
+    }
+
+    public void Nuevo()
+    {
+        this.Garantes = new Garantes();
+        Mensaje = string.Empty;
+    }
+
+    public async Task Eliminar()
+    {
+        using var response = await httpClient.DeleteAsync($"api/Garantes/{Garantes.GaranteId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            Mensaje = response.ReasonPhrase ?? "error";
+            return;
+        }
+        else
+            Nuevo();
+    }
+}

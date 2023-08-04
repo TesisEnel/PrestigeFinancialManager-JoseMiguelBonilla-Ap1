@@ -20,13 +20,31 @@ namespace PrestigeFinancial.Server.Migrations
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Nombres = table.Column<string>(type: "TEXT", nullable: false),
-                    cedula = table.Column<string>(type: "TEXT", nullable: false),
+                    cedula = table.Column<string>(type: "TEXT", maxLength: 11, nullable: true),
                     FechaNacimiento = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Direccion = table.Column<string>(type: "TEXT", nullable: true)
+                    Direccion = table.Column<string>(type: "TEXT", nullable: true),
+                    EstadoDeudor = table.Column<double>(type: "REAL", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Clientes", x => x.ClienteId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Garantes",
+                columns: table => new
+                {
+                    GaranteId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Nombres = table.Column<string>(type: "TEXT", nullable: true),
+                    cedula = table.Column<string>(type: "TEXT", maxLength: 11, nullable: true),
+                    Telefono = table.Column<string>(type: "TEXT", maxLength: 10, nullable: true),
+                    Direccion = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Garantes", x => x.GaranteId);
                 });
 
             migrationBuilder.CreateTable(
@@ -52,6 +70,7 @@ namespace PrestigeFinancial.Server.Migrations
                     PrestamoId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
+                    GaranteId = table.Column<int>(type: "INTEGER", nullable: false),
                     FechaPrestamo = table.Column<DateTime>(type: "TEXT", nullable: false),
                     MontoSolicitado = table.Column<double>(type: "REAL", nullable: false),
                     Interes = table.Column<decimal>(type: "TEXT", nullable: false),
@@ -98,7 +117,7 @@ namespace PrestigeFinancial.Server.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
                     TiposTelefonoId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Telefono = table.Column<string>(type: "TEXT", nullable: true)
+                    Telefono = table.Column<string>(type: "TEXT", maxLength: 10, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -115,7 +134,7 @@ namespace PrestigeFinancial.Server.Migrations
                 name: "PagosDetalle",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                    DetalleId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     PagoId = table.Column<int>(type: "INTEGER", nullable: true),
                     PrestamoId = table.Column<int>(type: "INTEGER", nullable: false),
@@ -123,7 +142,7 @@ namespace PrestigeFinancial.Server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PagosDetalle", x => x.Id);
+                    table.PrimaryKey("PK_PagosDetalle", x => x.DetalleId);
                     table.ForeignKey(
                         name: "FK_PagosDetalle_Pagos_PagoId",
                         column: x => x.PagoId,
@@ -167,6 +186,9 @@ namespace PrestigeFinancial.Server.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ClientesDetalle");
+
+            migrationBuilder.DropTable(
+                name: "Garantes");
 
             migrationBuilder.DropTable(
                 name: "PagosDetalle");

@@ -10,8 +10,11 @@ namespace PrestigeFinancial.Shared.Models
 
         [Required(ErrorMessage ="EL Cliente es requerido")]
         public int ClienteId { get; set; }
+        [Required(ErrorMessage ="EL Garante es requerido")]
 
-        public DateTime FechaPrestamo { get; set; } = DateTime.Now;
+        public int GaranteId { get; set; }
+
+        public DateTime FechaPrestamo { get; set; } = DateTime.Today;
 
         [Required(ErrorMessage ="El monto es requerido")]
         public double MontoSolicitado { get; set; }

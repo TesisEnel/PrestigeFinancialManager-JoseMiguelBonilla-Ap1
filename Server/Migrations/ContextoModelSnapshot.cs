@@ -26,6 +26,9 @@ namespace PrestigeFinancial.Server.Migrations
                     b.Property<string>("Direccion")
                         .HasColumnType("TEXT");
 
+                    b.Property<double>("EstadoDeudor")
+                        .HasColumnType("REAL");
+
                     b.Property<DateTime>("FechaNacimiento")
                         .HasColumnType("TEXT");
 
@@ -34,7 +37,7 @@ namespace PrestigeFinancial.Server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("cedula")
-                        .IsRequired()
+                        .HasMaxLength(11)
                         .HasColumnType("TEXT");
 
                     b.HasKey("ClienteId");
@@ -52,6 +55,7 @@ namespace PrestigeFinancial.Server.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Telefono")
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("TiposTelefonoId")
@@ -62,6 +66,34 @@ namespace PrestigeFinancial.Server.Migrations
                     b.HasIndex("ClienteId");
 
                     b.ToTable("ClientesDetalle");
+                });
+
+            modelBuilder.Entity("PrestigeFinancial.Shared.Models.Garantes", b =>
+                {
+                    b.Property<int>("GaranteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Direccion")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nombres")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Telefono")
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("cedula")
+                        .HasMaxLength(11)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("GaranteId");
+
+                    b.ToTable("Garantes");
                 });
 
             modelBuilder.Entity("PrestigeFinancial.Shared.Models.Pagos", b =>
@@ -90,7 +122,7 @@ namespace PrestigeFinancial.Server.Migrations
 
             modelBuilder.Entity("PrestigeFinancial.Shared.Models.PagosDetalle", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("DetalleId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -103,7 +135,7 @@ namespace PrestigeFinancial.Server.Migrations
                     b.Property<double>("ValorPagado")
                         .HasColumnType("REAL");
 
-                    b.HasKey("Id");
+                    b.HasKey("DetalleId");
 
                     b.HasIndex("PagoId");
 
@@ -127,6 +159,9 @@ namespace PrestigeFinancial.Server.Migrations
 
                     b.Property<DateTime>("FechaPrestamo")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("GaranteId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Interes")
                         .HasColumnType("TEXT");
