@@ -1,0 +1,141 @@
+@page "/ConsultaPagos"
+@inject HttpClient httpClient
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization;
+@attribute [Authorize]
+
+<div class="card">
+	<div class="card-header">
+		<h3 class="card align-items-center">Consulta de Pagos</h3>
+	</div>
+	<style>
+		.tarjeta-azul {
+			background-color: #007bff;
+			color: #fff;
+		}
+	</style>
+	<div class="card">
+
+		<div class="card-body">
+			<form>
+				<div class="input-group d-flex align-items-end">
+					<InputSelect class="form-control col-2" @bind-Value="FiltroNomre">
+						<option value="0" hidden="hidden">[Seleccione]</option>
+						<option value="1">Concepto</option>
+						<option value="2">Fecha</option>
+						<option value="3">ClienteID</option>
+					</InputSelect>
+
+					<div class="flex-fill mx-2">
+
+						@if (FiltroNomre == "1")
+						{
+							<div class="input-group">
+								<label class="input-group-text"> Concepto </label>
+								<InputText class="form-control" @bind-Value="Criterio" />
+							</div>
+						}
+
+						@if (FiltroNomre == "2")
+						{
+							<div class="input-group">
+								<label class="input-group-text"> Fecha </label>
+								<InputDate class="form-control" @bind-Value="FiltroFecha" />
+							</div>
+						}
+
+						@if (FiltroNomre == "3")
+						{
+							<div class="input-group">
+								<label class="input-group-text"> Puntuaci&oacuten 1/10 </label>
+								<InputNumber class="form-control" min="1" max="10" @bind-Value="FiltroClienteId" />
+							</div>
+						}
+					</div>
+
+					<button type="button" class="btn btn-sm-10 btn-primary" @onclick="Buscar">
+						<span class="oi oi-magnifying-glass"></span> Buscar
+					</button>
+				</div>
+			</form>
+		</div>
+
+		<br>
+
+		@if (Pagos is not null)
+		{
+			<div class="row">
+				@foreach (var Pagos in Pagos)
+				{
+					<div class="col-md-4 mb-4">
+						<div class="card tarjeta-azul">
+
+							<td>
+							</td>
+
+							<div class="row">
+								<div class="col-md-13">
+								</div>
+							</div>
+
+							<ul class="list-group list-group-flush">
+								<li class="list-group-item"><strong>Concepto:</strong> @Pagos.Concepto</li>
+								<li class="list-group-item"><strong>Fecha:</strong> @Pagos.Fecha.ToString("dd/MM/yyyy")</li>
+								<li class="list-group-item"><strong>PagoId:</strong> @Pagos.PagoId</li>
+								<td><a href="Pagos/@Pagos.PagoId" class="card align-items-center">Registro</a></td>
+							</ul>
+
+						</div>
+					</div>
+				}
+			</div>
+		}
+	</div>
+
+	<div class="card-footer">
+		<div class="form-row justify-content-sm-between" aria-orientation="vertical">
+			<div class="col-3">
+				<label for="CantidaRegistro" class="col-form-label"><strong>Post</strong>&nbsp;</label>
+				<input id="CantidaRegistro" @bind-value="@conteo" disabled class="form-control" />
+			</div>
+		</div>
+	</div>
+
+</div>
+
+@code {
+	public string? FiltroNomre { get; set; }
+	public DateTime? FiltroFecha { get; set; }
+	public int? FiltroClienteId { get; set; }
+
+	public List<Pagos>? Pagos { get; set; }
+	public int conteo { get; set; }
+	public string? filtro { get; set; }
+	public string? Criterio { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Buscar();
+	}
+
+	public async Task Buscar()
+	{
+		Pagos = await httpClient.GetFromJsonAsync<List<Pagos>>($"api/Pagos");
+
+		if (FiltroNomre != string.Empty && FiltroNomre == "1")
+		{
+			Pagos = Pagos.Where(l => l.Concepto.Contains(Criterio, StringComparison.OrdinalIgnoreCase)).ToList();
+		}
+		else if (FiltroFecha != null && FiltroNomre == "2")
+		{
+			Pagos = Pagos.Where(l => l.Fecha.Date == FiltroFecha.Value.Date).ToList();
+		}
+		else if (FiltroClienteId != null && FiltroNomre == "3")
+		{
+			Pagos = Pagos.Where(l => l.ClienteId == FiltroClienteId).ToList();
+		}
+
+		conteo = Pagos != null ? Pagos.Count() : 0;
+		StateHasChanged();
+	}
+}

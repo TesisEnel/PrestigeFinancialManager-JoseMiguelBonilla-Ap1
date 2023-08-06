@@ -7,11 +7,7 @@ namespace PrestigeFinancial.Shared.Models
     {
         [Key]
         public int PagoId { get; set; }
-
-        [Required(ErrorMessage = "La Fecha es requerida")]  
         public DateTime Fecha { get; set; }
-
-        [Required(ErrorMessage = "La Persona es requerida")]  
         public int ClienteId { get; set; }
 
         [Required(ErrorMessage = "El concepto es requerido")]  
@@ -20,6 +16,7 @@ namespace PrestigeFinancial.Shared.Models
         [Required(ErrorMessage = "El monto es requerido")]  
         [Range(0.01, double.MaxValue, ErrorMessage = "El monto debe ser mayor que cero")]
         public double Monto { get; set; }
+        public double MontoPago { get; set; }
 
         [ForeignKey("PagoId")]
         public virtual List<PagosDetalle>? PagosDetalle {get;  set;} = new List<PagosDetalle>();

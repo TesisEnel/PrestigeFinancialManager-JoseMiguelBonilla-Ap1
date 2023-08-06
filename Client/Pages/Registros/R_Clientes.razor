@@ -1,6 +1,7 @@
 @page "/RegistroCliente"
 @page "/RegistroCliente/{ClienteId:int}"
 @inject HttpClient httpClient
+@inject IToastService services 
 
 <EditForm Model="Cliente" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
@@ -169,7 +170,7 @@
         }
         else
         {
-            Mensaje = "Ticket no encontrado";
+            services.ShowError("Cliente no encontrado");
         }
     }
 
@@ -185,6 +186,7 @@
         });
         TipoTelefonoSeleccionado = 0;
         TelefonoSeleccionado = string.Empty;
+        services.ShowInfo("Telefono agregado satisfactoriamente");
         StateHasChanged();
     }
 
@@ -207,12 +209,12 @@
         ValidacionDetalle = string.Empty;
         if (TipoTelefonoSeleccionado <= 0)
         {
-            ValidacionDetalle = "El Tipo de teléfono es obligatorio";
+            services.ShowInfo("El tipo de telefono es obligatorio");
         }
 
         if (String.IsNullOrWhiteSpace(TelefonoSeleccionado))
         {
-            ValidacionDetalle += "El Teléfono es obligatorio";
+            services.ShowInfo("El telefono es obligatorio");
         }
 
         return ValidacionDetalle.Length == 0;
@@ -223,12 +225,13 @@
         using var response = await httpClient.PostAsJsonAsync("api/Clientes", Cliente);
         if (!response.IsSuccessStatusCode)
         {
-            Mensaje = response.ReasonPhrase ?? "error";
+            services.ShowError("No se pudo guardar");
             return;
         }
         var clienteDevuelto = await response.Content.ReadFromJsonAsync<Clientes>();
         if (clienteDevuelto is not null)
         {
+            services.ShowSuccess("Guardado satisfactoriamente");
             Cliente = clienteDevuelto;
             StateHasChanged();
         }
@@ -250,10 +253,11 @@
         using var response = await httpClient.DeleteAsync($"api/Clientes/{Cliente.ClienteId}");
         if (!response.IsSuccessStatusCode)
         {
-            Mensaje = response.ReasonPhrase ?? "error";
+            services.ShowError("No fue posible eliminar el cliente");
             return;
         }
         else
+            services.ShowSuccess("El cliente fue eliminado satisfactoriamente");
             Nuevo();
     }
 }

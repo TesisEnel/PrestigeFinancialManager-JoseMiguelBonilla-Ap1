@@ -10,7 +10,7 @@ namespace PrestigeFinancial.Shared.Models
         [Required(ErrorMessage = "El Nombre es requerido")]
         public int ClienteId { get; set; }
         public string? Nombres { get; set; }
-        [StringLength(11, MinimumLength = 11, ErrorMessage = "El campo cedula debe tener exactamente 10 caracteres.")]
+        [StringLength(11, MinimumLength = 11, ErrorMessage = "El campo cedula debe tener exactamente 11 caracteres.")]
         public string? cedula { get; set; }
 
         [StringLength(10, MinimumLength = 10, ErrorMessage = "El campo Telefono debe tener exactamente 10 caracteres.")]

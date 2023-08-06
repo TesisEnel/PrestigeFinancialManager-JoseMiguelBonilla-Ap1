@@ -1,0 +1,172 @@
+@page "/RegistroPagos"
+@page "/RegistroPagos/{PagoId:int}"
+@inject HttpClient httpClient
+@inject IToastService services 
+
+<EditForm Model="Pagos" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <h3>Registro de Pagos.</h3>
+            </div>
+            <div class="card-body">
+
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 col-xl-4">
+                    <label>Pagos Id:</label>
+                    <div class="input-group mb-3">
+                        <InputNumber @bind-Value="Pagos.PagoId" class="form-control" aria-describedby="BotonBuscar" />
+                        <button @onclick="Buscar" class="btn btn-outline-primary" type="button" id="BotonBuscar"><i class="oi oi-magnifying-glass"></i></button>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <label for="txtClienteID" class="form-label">ClienteID:</label>
+
+                    <InputSelect class="form-select" @bind-Value="Pagos.ClienteId">
+                        @foreach (var Cliente in ListClientes)
+                        {
+                            <option value="@Cliente.ClienteId">@Cliente.Nombres</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Pagos.ClienteId)" />
+                </div>
+
+                <div class="col-6">
+                    <label for="txtFecha" class="form-label"> Fecha:</label>
+                    <input type="date" id="txtFecha" class="form-control" @bind-value="Pagos.Fecha" />
+                    <ValidationMessage For="@(() => Pagos.Fecha)" />
+                </div>
+
+                <div class="col-6">
+                    <label for="txtConcepto" class="form-label"> Concepto:</label>
+                    <input type="text" id="txtConcepto" class="form-control" @bind-value="Pagos.Concepto" />
+                    <ValidationMessage For="@(() => Pagos.Concepto)" />
+                </div>
+
+                <div class="col-6">
+                    <label for="txtMonto" class="form-label"> Monto:</label>
+                    <input type="number" id="txtMonto" class="form-control" @bind-value="Pagos.Monto" />
+                    <ValidationMessage For="@(() => Pagos.Monto)" />
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-center">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file"></i></button>
+                    <button type="submit" class="btn btn-outline-success">Guardar <i class="oi oi-document"></i></button>
+                    <button type="button" class="btn btn-outline-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+<label>@Mensaje</label>
+
+@code {
+    
+    [Parameter]
+    public int PagoId { get; set; }
+    
+    public Pagos Pagos { get; set; } = new Pagos();
+    public PagosDetalle PagosDetalle { get; set; } = new PagosDetalle();
+    
+    private List<Prestamos> ListPrestamos = new List<Prestamos>();
+    private List<Clientes> ListClientes = new List<Clientes>();
+    public string ValidacionDetalle { get; set; } = string.Empty;
+
+    public int TipoPagoSeleccionado { get; set; } = 0;
+    public double PagoSeleccionado { get; set; } = 0;
+
+    public double Total { get; set; }
+    public string Mensaje { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.ListClientes= await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+        this.ListPrestamos= await httpClient.GetFromJsonAsync<List<Prestamos>>("api/Prestamos");
+
+        if (PagoId > 0)
+        {
+            await Buscar();
+        }
+    }
+
+
+    private async Task Buscar()
+    {
+        var response = await httpClient.GetAsync($"api/Pagos/{PagoId}"); // Ajusta la URL de la API según tu estructura
+        if (response.IsSuccessStatusCode)
+        {
+            Pagos = await response.Content.ReadFromJsonAsync<Pagos>();
+            if (Pagos.PagosDetalle != null)
+            {
+                Total = Pagos.PagosDetalle.Sum(detalle => detalle.ValorPagado);
+            }
+        }
+        else
+        {
+            Mensaje = "No se encontró el pago.";
+        }
+    }
+
+    public async Task Guardar()
+    {
+        using var response = await httpClient.PostAsJsonAsync("api/Pagos", Pagos);
+        if (!response.IsSuccessStatusCode)
+        {
+            Mensaje = response.ReasonPhrase ?? "error";
+            return;
+        }
+        var PagosDevuelto = await response.Content.ReadFromJsonAsync<Pagos>();
+        if (PagosDevuelto is not null)
+        {
+            Pagos = PagosDevuelto;
+            StateHasChanged();
+        }
+        Nuevo();
+    }
+
+
+    public bool Validar()
+    {
+        bool validacion = true;
+
+        if (Pagos.ClienteId == 0)
+        {
+            validacion = false;
+        }
+
+        if (string.IsNullOrEmpty(Pagos.Concepto))
+        {
+            validacion = false;
+        }
+
+        if (Pagos.Monto == 0)
+        {
+            validacion = false;
+        }
+
+        return validacion;
+    }
+
+    private void Nuevo()
+    {
+        Pagos = new Pagos();
+        PagosDetalle = new PagosDetalle();
+        Total = 0;
+    }
+
+    public async Task Eliminar()
+    {
+        using var response = await httpClient.DeleteAsync($"api/Pagos/{Pagos.PagoId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            services.ShowError("No fue posible eliminar el pago");
+            return;
+        }
+        else
+            services.ShowSuccess("El pago fue eliminado satisfactoriamente");
+            Nuevo();
+    }
+}

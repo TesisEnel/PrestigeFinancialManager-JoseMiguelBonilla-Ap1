@@ -11,7 +11,7 @@ using PrestigeFinancial.Server.DAL;
 namespace PrestigeFinancial.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20230803174832_Inicial")]
+    [Migration("20230806225740_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -26,11 +26,11 @@ namespace PrestigeFinancial.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<double>("Balance")
+                        .HasColumnType("REAL");
+
                     b.Property<string>("Direccion")
                         .HasColumnType("TEXT");
-
-                    b.Property<double>("EstadoDeudor")
-                        .HasColumnType("REAL");
 
                     b.Property<DateTime>("FechaNacimiento")
                         .HasColumnType("TEXT");
@@ -118,6 +118,9 @@ namespace PrestigeFinancial.Server.Migrations
                     b.Property<double>("Monto")
                         .HasColumnType("REAL");
 
+                    b.Property<double>("MontoPago")
+                        .HasColumnType("REAL");
+
                     b.HasKey("PagoId");
 
                     b.ToTable("Pagos");
@@ -172,8 +175,14 @@ namespace PrestigeFinancial.Server.Migrations
                     b.Property<double>("MontoSolicitado")
                         .HasColumnType("REAL");
 
+                    b.Property<string>("Nombres")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("TipoPrestamo")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("TiposPrestamoId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("PrestamoId");
 
