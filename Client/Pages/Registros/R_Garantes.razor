@@ -98,17 +98,28 @@
         this.ListClientes= await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
     }
 
-    private async Task Buscar()
+    public async Task<bool> Buscar()
     {
-        var response = await httpClient.GetAsync($"api/Garantes/{GaranteId}"); 
-        if (response.IsSuccessStatusCode)
+        try
         {
-            Garantes = await response.Content.ReadFromJsonAsync<Garantes>();
-            services.ShowSuccess("Encontrado");
+            var garanteEncontrado = await httpClient.GetFromJsonAsync<Garantes>($"api/Garantes/{Garantes.GaranteId}");
+
+            if (garanteEncontrado != null)
+            {
+                this.Garantes = garanteEncontrado;
+                StateHasChanged();
+                services.ShowSuccess("El garante ha sido encontrado");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-        else
+        catch
         {
-            services.ShowError("No se encontro el Garantes");
+            services.ShowError("El no garante ha sido encontrado");
+            return false;
         }
     }
 

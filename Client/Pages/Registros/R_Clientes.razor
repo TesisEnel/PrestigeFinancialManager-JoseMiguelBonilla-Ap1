@@ -160,17 +160,28 @@
             TiposTelefonosList = encontrados;
     }
 
-    private async Task Buscar()
+   public async Task<bool> Buscar()
     {
-        var response = await httpClient.GetAsync($"api/Clientes/{ClienteId}"); 
-        if (response.IsSuccessStatusCode)
+        try
         {
-            Cliente = await response.Content.ReadFromJsonAsync<Clientes>();
-            services.ShowSuccess("Encontrado");
+            var garanteEncontrado = await httpClient.GetFromJsonAsync<Clientes>($"api/Clientes/{Cliente.ClienteId}");
+
+            if (garanteEncontrado != null)
+            {
+                this.Cliente = garanteEncontrado;
+                StateHasChanged();
+                services.ShowSuccess("El Cliente ha sido encontrado");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-        else
+        catch
         {
-            services.ShowError("No se encontro el Clientes");
+            services.ShowError("El no cliente ha sido encontrado");
+            return false;
         }
     }
 
