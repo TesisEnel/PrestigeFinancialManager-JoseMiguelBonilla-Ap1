@@ -8,6 +8,8 @@ Esta el apartado home donde se saluda al usuario empleado
 
 ![image](https://github.com/JoseMiguelBonilla/PrestigeFinancialManager/assets/133031563/26fb5a3f-4323-4695-a9ce-53167bafafe6)
 
+Aqui se encuentra el menu donde el usuario podra seleccionar los distintos registros y funciones del sistema
+
 ![image](https://github.com/JoseMiguelBonilla/PrestigeFinancialManager/assets/133031563/27051dc7-6150-4f63-be79-20faba3ffc68)
 
 El menu, donde pueden accederse a los diferentes registros del sistema, en orden secuencial de arriba hacia abajo para registrar un prestamo exitoso!
@@ -50,5 +52,8 @@ Dentro de este apartado podemos ingresar el pago de las coutas, ingresando cuant
 En el momento de que el pago sea realizado y la couta sea descontada el sistema presentara la siguiente notificacion
 
 ![image](https://github.com/JoseMiguelBonilla/PrestigeFinancialManager/assets/133031563/78052cb2-0f4d-432c-b766-29fb79cdd847)
+El sistema tambien cuenta con una calculadora de amortizaciones, donde el usuario ingresa los datos y al momento de buscarla la desplega de 
+manera satisfactoria.
+![image](https://github.com/JoseMiguelBonilla/PrestigeFinancialManager/assets/133031563/396565ee-c3b8-49ec-b332-d0022410eb16)
 
 Todas estas son las funcionalidades de la primera version de PrestigeFinancial, Pronto vendran mas funcionalidades para tu entidad financiera!!
