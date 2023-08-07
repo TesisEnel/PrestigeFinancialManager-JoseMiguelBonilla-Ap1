@@ -1,6 +1,8 @@
 @page "/RegistroPrestamos"
 @page "/RegistroPrestamos/{PrestamoId:int}"
 @inject HttpClient httpClient
+@inject IToastService services 
+
 
 <EditForm Model="Prestamos" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
@@ -114,12 +116,13 @@
         var PrestamosEncontrado = await httpClient.GetFromJsonAsync<Prestamos>($"api/Prestamos/{Prestamos.PrestamoId}");
         if (PrestamosEncontrado != null)
         {
+            services.ShowSuccess("Prestamos encontrado");
             this.Prestamos = PrestamosEncontrado;
             StateHasChanged();
         }
         else
         {
-            Mensaje = "Prestamos no encontrado";
+            services.ShowError("Prestamos no encontrado");
         }
     }
 
@@ -128,12 +131,15 @@
         using var response = await httpClient.PostAsJsonAsync("api/Prestamos", Prestamos);
         if (!response.IsSuccessStatusCode)
         {
-            Mensaje = response.ReasonPhrase ?? "error";
+            services.ShowError("No fue posible guardar");
+            services.ShowInfo("Sugerimos revisar a detalle los datos suministrados");
+
             return;
         }
         var PrestamosDevuelto = await response.Content.ReadFromJsonAsync<Prestamos>();
         if (PrestamosDevuelto is not null)
         {
+            services.ShowSuccess("Guardado satisfactoriamente");
             Prestamos = PrestamosDevuelto;
             StateHasChanged();
         }
@@ -142,6 +148,7 @@
 
     public void Nuevo()
     {
+        services.ShowInfo("Nuevo Registro");
         this.Prestamos = new Prestamos();
         Mensaje = string.Empty;
     }
@@ -151,10 +158,11 @@
         using var response = await httpClient.DeleteAsync($"api/Prestamos/{Prestamos.PrestamoId}");
         if (!response.IsSuccessStatusCode)
         {
-            Mensaje = response.ReasonPhrase ?? "error";
+            services.ShowError("No fue posible eliminar");
             return;
         }
         else
+            services.ShowSuccess("Eliminado satisfactoriamente");
             Nuevo();
     }
 }

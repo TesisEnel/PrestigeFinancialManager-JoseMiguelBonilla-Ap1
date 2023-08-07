@@ -56,9 +56,8 @@ namespace PrestigeFinancial.Server.Migrations
                     Fecha = table.Column<DateTime>(type: "TEXT", nullable: false),
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
                     Concepto = table.Column<string>(type: "TEXT", nullable: false),
-                    CantidadCoutas = table.Column<int>(type: "INTEGER", nullable: false),
-                    Monto = table.Column<double>(type: "REAL", nullable: false),
-                    MontoPago = table.Column<double>(type: "REAL", nullable: false)
+                    CantidadCoutasPagadas = table.Column<int>(type: "INTEGER", nullable: false),
+                    Monto = table.Column<double>(type: "REAL", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,6 +78,7 @@ namespace PrestigeFinancial.Server.Migrations
                     MontoSolicitado = table.Column<double>(type: "REAL", nullable: false),
                     Interes = table.Column<decimal>(type: "TEXT", nullable: false),
                     Coutas = table.Column<int>(type: "INTEGER", nullable: false),
+                    MontoCoutas = table.Column<double>(type: "REAL", nullable: false),
                     Balance = table.Column<double>(type: "REAL", nullable: false),
                     TipoPrestamo = table.Column<string>(type: "TEXT", nullable: true)
                 },
@@ -140,7 +140,7 @@ namespace PrestigeFinancial.Server.Migrations
                 {
                     DetalleId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    PagoId = table.Column<int>(type: "INTEGER", nullable: true),
+                    PagoId = table.Column<int>(type: "INTEGER", nullable: false),
                     PrestamoId = table.Column<int>(type: "INTEGER", nullable: false),
                     Cantidadpagos = table.Column<int>(type: "INTEGER", nullable: false),
                     ValorPagado = table.Column<double>(type: "REAL", nullable: false)
@@ -152,7 +152,8 @@ namespace PrestigeFinancial.Server.Migrations
                         name: "FK_PagosDetalle_Pagos_PagoId",
                         column: x => x.PagoId,
                         principalTable: "Pagos",
-                        principalColumn: "PagoId");
+                        principalColumn: "PagoId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(

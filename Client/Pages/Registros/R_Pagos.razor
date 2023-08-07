@@ -3,7 +3,7 @@
 @inject HttpClient httpClient
 @inject IToastService services 
 
-<EditForm Model="Pagos" OnValidSubmit="Guardar">
+<EditForm Model="Pagos" OnValidSubmit="Aplicar">
     <DataAnnotationsValidator />
 
     <div class="container">
@@ -12,14 +12,6 @@
                 <h3>Registro de Pagos.</h3>
             </div>
             <div class="card-body">
-
-                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 col-xl-4">
-                    <label>Pagos Id:</label>
-                    <div class="input-group mb-3">
-                        <InputNumber @bind-Value="Pagos.PagoId" class="form-control" aria-describedby="BotonBuscar" />
-                        <button @onclick="Buscar" class="btn btn-outline-primary" type="button" id="BotonBuscar"><i class="oi oi-magnifying-glass"></i></button>
-                    </div>
-                </div>
 
                 <div class="col-6">
                     <label for="txtClienteID" class="form-label">ClienteID:</label>
@@ -44,22 +36,99 @@
                     <input type="text" id="txtConcepto" class="form-control" @bind-value="Pagos.Concepto" />
                     <ValidationMessage For="@(() => Pagos.Concepto)" />
                 </div>
+            </div>
 
-                <div class="col-6">
-                    <label for="txtCantidadCoutas" class="form-label"> Cantidad de coutas a pagar :</label>
-                    <input type="number" id="txtCantidadCoutas" class="form-control" @bind-value="Pagos.CantidadCoutas" />
-                    <ValidationMessage For="@(() => Pagos.CantidadCoutas)" />
-                </div>
+        <fieldset class="border-success border border-1">
+                            <div class="card-header">
+                                <h3>Pagos</h3>
+                            </div>
+                   
+                        <div class="row m-1">
+                        <div class="col-md-6">
+                            <label>Prestamo: </label>
+                            <InputSelect @bind-Value="PagosDetalle.PrestamoId" class="form-select">
+                                <option value="@Pagos.PrestamoId" hidden="hidden">[Seleccione]</option>
+                             @foreach (var tipo in ListPrestamos)
+								{
+									<option value="@tipo.PrestamoId"> "@tipo.PrestamoId" </option>
+								}
+                            </InputSelect>
+                            <ValidationMessage For="@(() => PagosDetalle.PrestamoId)" />
+                        </div>
+
+                        <div class="col-md-5">
+                            <label>Cantidad</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="PagosDetalle.Cantidadpagos" class="form-control"></InputNumber>
+                                <button type="button" class="btn btn-outline-success" @onclick="AgregarDetalle">Agregar <i class="oi oi-plus" /></button>
+                                <ValidationMessage For="@(() => PagosDetalle.Cantidadpagos)" />
+                            </div>
+                        </div>
+
+                    </div>    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>PrestamoId</th>
+                                <th>Cantidad de pagos de coutas</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var item in this.Pagos.PagosDetalle)
+                            {
+                                <tr>
+                                    <td>@item.PrestamoId</td>
+                                    <td>@item.Cantidadpagos</td>
+                                    <td><button type="button" class="btn btn-outline-danger" @onclick=@(() => RemoverDetalle(item))><i class="oi oi-trash" /></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    @*Total*@
+                  <div class="row m-1">
+                      <div class="row justify-content-between">
+                        <div class="col-2">
+                            <label>Total:</label>
+                            <input disabled @bind-value="Total" class="form-control" />
+                        </div>
+                    </div>
+                    </div> 
+
+                    <hr>
+                </fieldset>
+
+                <hr>
+
+                @*Producido*@
+                <fieldset class="border-success border border-1">
+                    <legend>Pagado</legend>
+                    <div class="row">
+                        <div class="col-3">
+                            <InputSelect @bind-Value="PagosDetalle.PrestamoId" class="form-select">
+                                <option value="@Pagos.PrestamoId" hidden="hidden">[Seleccione]</option>
+                             @foreach (var tipo in ListPrestamos)
+								{
+									<option value="@tipo.PrestamoId"> "@tipo.PrestamoId" </option>
+								}
+                            </InputSelect>
+                            <ValidationMessage For="@(() => PagosDetalle.PrestamoId)" />
+                        </div>
+
+                    </div>
+                </fieldset>
+
             </div>
             <div class="card-footer d-flex justify-content-center">
                 <div class="btn-group">
                     <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file"></i></button>
-                    <button type="submit" class="btn btn-outline-success">Guardar <i class="oi oi-document"></i></button>
+                    <button type="submit" class="btn btn-outline-success">Aplicar <i class="oi oi-document"></i></button>
                     <button type="button" class="btn btn-outline-danger" @onclick="Eliminar">Eliminar <i class="oi oi-trash"></i></button>
                 </div>
             </div>
         </div>
-    </div>
 </EditForm>
 <label>@Mensaje</label>
 
@@ -70,13 +139,13 @@
     
     public Pagos Pagos { get; set; } = new Pagos();
     public PagosDetalle PagosDetalle { get; set; } = new PagosDetalle();
-    
+
     private List<Prestamos> ListPrestamos = new List<Prestamos>();
     private List<Clientes> ListClientes = new List<Clientes>();
     public string ValidacionDetalle { get; set; } = string.Empty;
 
-    public int TipoPagoSeleccionado { get; set; } = 0;
-    public double PagoSeleccionado { get; set; } = 0;
+    public int TipoPrestamoSeleccionado { get; set; } = 0;
+    public int Coutas { get; set; } = 0;
 
     public double Total { get; set; }
     public string Mensaje { get; set; }
@@ -92,10 +161,9 @@
         }
     }
 
-
     private async Task Buscar()
     {
-        var response = await httpClient.GetAsync($"api/Pagos/{PagoId}"); // Ajusta la URL de la API según tu estructura
+        var response = await httpClient.GetAsync($"api/Pagos/{PagoId}"); 
         if (response.IsSuccessStatusCode)
         {
             Pagos = await response.Content.ReadFromJsonAsync<Pagos>();
@@ -106,27 +174,42 @@
         }
         else
         {
-            Mensaje = "No se encontró el pago.";
+            services.ShowError("No se encontro el pagos");
         }
     }
-
-    public async Task Guardar()
+    private async Task<Prestamos> BuscarPrestamos(int PrestamoId)
     {
+        var prestamos = await httpClient.GetFromJsonAsync<Prestamos>($"api/Prestamos/{PrestamoId}");
+
+        if (prestamos == null)
+        {
+            return new Prestamos();
+        }
+
+        return prestamos;
+    }
+
+    public async Task Aplicar()
+    {
+        Pagos.PagosDetalle = this.Pagos.PagosDetalle.ToList();
         using var response = await httpClient.PostAsJsonAsync("api/Pagos", Pagos);
+
         if (!response.IsSuccessStatusCode)
         {
-            Mensaje = response.ReasonPhrase ?? "error";
+            services.ShowSuccess("Descontado de las coutas pendientes");
+            services.ShowInfo("Puede consultar las demas en el apartado Consulta de Prestamos");
+
             return;
         }
-        var PagosDevuelto = await response.Content.ReadFromJsonAsync<Pagos>();
-        if (PagosDevuelto is not null)
+        var pagodevuelto = await response.Content.ReadFromJsonAsync<Pagos>();
+        if (pagodevuelto is not null)
         {
-            Pagos = PagosDevuelto;
+            services.ShowSuccess("Guardado satisfactoriamente");
+            Pagos = pagodevuelto;
             StateHasChanged();
         }
         Nuevo();
     }
-
 
     public bool Validar()
     {
@@ -142,19 +225,74 @@
             validacion = false;
         }
 
-        if (Pagos.CantidadCoutas == 0)
-        {
-            validacion = false;
-        }
-
         return validacion;
     }
+    public bool ValidarDetalle()
+    {
+        if (PagosDetalle.PrestamoId < 0)
+        {
+            return false;
+        }
+        if (PagosDetalle.Cantidadpagos < 0)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    public async Task AgregarDetalle()
+    {
+        if (ValidarDetalle())
+        {
+            if (PagosDetalle.Cantidadpagos < 0)
+            {
+                services.ShowError("La cantidad debe ser mayor que cero");
+                return;
+            }
 
+            var prestamos = await BuscarPrestamos(PagosDetalle.PrestamoId);
+
+            if (Pagos != null)
+            {
+                int Temp = 0;
+
+                if (PagosDetalle.Cantidadpagos >= prestamos.Coutas)
+                {
+                    services.ShowError("La cantidad de coutas a pagar es mayor a las coutas establecidas del prestamo");
+                    services.ShowInfo("Sugerimos revisar los datos ingresados");
+                    return;
+                }
+
+                PagosDetalle.PagoId = Pagos.PagoId;
+                Pagos.PagosDetalle.Add(PagosDetalle);
+                services.ShowSuccess("Solicitud de descontar dichas cuotas de las cuotas pendientes del prestamo");
+                PagosDetalle = new PagosDetalle();
+
+                foreach (var item in Pagos.PagosDetalle)
+                {
+                    Temp = item.Cantidadpagos;
+                }
+             
+                Pagos.CantidadCoutasPagadas = Temp;
+            }
+        }
+    }
     private void Nuevo()
     {
         Pagos = new Pagos();
         PagosDetalle = new PagosDetalle();
+        services.ShowInfo("Nuevo Registro");
         Total = 0;
+    }
+
+    public void RemoverDetalle(PagosDetalle detalleRemover)
+    {
+        TipoPrestamoSeleccionado = detalleRemover.PrestamoId;
+        Coutas = detalleRemover.Cantidadpagos;
+
+        Pagos.PagosDetalle.Remove(detalleRemover);
     }
 
     public async Task Eliminar()

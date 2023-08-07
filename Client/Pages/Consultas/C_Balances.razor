@@ -11,37 +11,48 @@
             <form>
                 <div class="input-group d-flex align-items-end">
                     <InputSelect class="form-control col-2" @bind-Value="filtro">
-                        <option value="1">PrestamoId</option>
+                        @foreach(var Criterio in Atributos)
+                        {
+                        <option value="Criterio">@Criterio</option>
+
+                        }
                     </InputSelect>
                     <div class="flex-fill mx-2">
                         <div class="input-group">
                             <label class="input-group-text"> Busqueda </label>
-                            <InputText class="form-control" @bind-Value="Criterio" />
+                            <input class="form-control" @oninput=@(args => Filtrar(args.Value.ToString()))/>
+
                         </div>
                     </div>
-                    <button type="button" class="btn btn-sm-10 btn-primary" @onclick="Buscar"> <span class="oi oi-magnifying-glass"></span> Buscar </button>
+                    <button type="button" class="btn btn-sm-10 btn-primary" @onclick="Reiniciar"> <span class="oi oi-reload"></span> Reiniciar </button>
+
                 </div>
             </form>
 
         </div>
-        @if (Prestamos is not null)
+        @if (ListPrestamos is not null)
         {
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>PrestamoId</th>
-                        <th>ClienteId</th>
+                        <th>PrestamosId</th>
+                        <th>ID del Deudor</th>
+                        <th>Fecha de desembolso </th>
+                        <th>MontoSolicitado</th>
+                        <th>Interes</th>
                         <th>Coutas</th>
-                        <th>Detalles</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var Prestamos in Prestamos)
+                    @foreach (var Prestamos in ListPrestamos)
                     {
                         <tr>
                             <td>@Prestamos.PrestamoId</td>
                             <td>@Prestamos.ClienteId</td>
+                            <td>@Prestamos.FechaPrestamo</td>
+                            <td>@Prestamos.MontoSolicitado</td>
+                            <td>@Prestamos.Interes</td>
                             <td>@Prestamos.Coutas</td>
                             <td><a href="Prestamos/@Prestamos.PrestamoId">Ver</a></td>
                         </tr>
@@ -63,17 +74,78 @@
 </div>
 
 @code {
-    public List<Prestamos>? Prestamos { get; set; }
-    public int conteo { get; set; }
-    public string? filtro { get; set; }
-    public string? Criterio { get; set; }
 
+    public int conteo { get; set; }
+    public string? filtro { get; set; }= "";
+    public string? Criterio { get; set; }
+    public List<Prestamos> ListPrestamos = new List<Prestamos>();
+    public List<string> Atributos { get; set; } = new List<string> { "PrestamoId", "ClienteId", "MontoSolicitado","Interes", "Cuotas" };
+    
+     protected override async Task OnInitializedAsync()
+    {
+        this.ListPrestamos= await httpClient.GetFromJsonAsync<List<Prestamos>>("api/Prestamos");
+        conteo = ListPrestamos != null ? ListPrestamos!.Count() : 0;
+
+    }
     public async Task Buscar()
     {
-        Prestamos = await httpClient.GetFromJsonAsync<List<Prestamos>>($"api/Prestamos");
+        ListPrestamos = await httpClient.GetFromJsonAsync<List<Prestamos>>($"api/Prestamos");
 
-        conteo = Prestamos != null ? Prestamos!.Count() : 0;
+        conteo = ListPrestamos != null ? ListPrestamos!.Count() : 0;
         StateHasChanged();
 
     }
+
+    public async Task Reiniciar()
+    {
+        ListPrestamos = await httpClient.GetFromJsonAsync<List<Prestamos>>($"api/Prestamos");
+        conteo = ListPrestamos != null ? ListPrestamos!.Count() : 0;
+        StateHasChanged();
+
+    }
+
+    public async Task Filtrar(string Contenido)
+    {
+        switch(this.filtro)
+                {
+                    case "PrestamoId":
+                        this.ListPrestamos=  ListPrestamos.Where(e => Convert.ToString(e.PrestamoId).Contains(Contenido)).ToList();
+                        conteo = ListPrestamos != null ? ListPrestamos!.Count() : 0;
+
+                        break;
+                    case "ClienteId":
+                        this.ListPrestamos=  ListPrestamos.Where(e => Convert.ToString(e.ClienteId).Contains(Contenido)).ToList();
+                        conteo = ListPrestamos != null ? ListPrestamos!.Count() : 0;
+
+                        break;
+                    case "MontoSolicitado":
+                        this.ListPrestamos=  ListPrestamos.Where(e => Convert.ToString(e.MontoSolicitado).Contains(Contenido)).ToList();
+                        conteo = ListPrestamos != null ? ListPrestamos!.Count() : 0;
+
+                        break;
+                    case "Coutas":
+                        this.ListPrestamos=  ListPrestamos.Where(e => Convert.ToString(e.Coutas).Contains(Contenido)).ToList();
+                        conteo = ListPrestamos != null ? ListPrestamos!.Count() : 0;
+
+                        break;
+                    case "Interes":
+                        this.ListPrestamos=  ListPrestamos.Where(e => Convert.ToString(e.Interes).Contains(Contenido)).ToList();
+                        conteo = ListPrestamos != null ? ListPrestamos!.Count() : 0;
+                        break;
+                    case "":
+                        this.ListPrestamos=  ListPrestamos;
+                        conteo = ListPrestamos != null ? ListPrestamos!.Count() : 0;
+
+                        break;
+                    default:
+                        this.ListPrestamos= new List<Prestamos>();
+                        conteo = ListPrestamos != null ? ListPrestamos!.Count() : 0;
+
+                        break;
+
+                }
+            
+    }
+
+
 }

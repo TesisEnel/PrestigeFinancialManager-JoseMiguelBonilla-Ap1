@@ -18,7 +18,7 @@ namespace PrestigeFinancial.Server.Controllers
             _context = contexto;
         }
 
-                public bool Existe(int PagoId)
+        public bool Existe(int PagoId)
         {
             return (_context.Pagos?.Any(e => e.PagoId == PagoId)).GetValueOrDefault();
         }
@@ -44,14 +44,14 @@ namespace PrestigeFinancial.Server.Controllers
                 return NotFound();
             }
 
-            var Pagos = await _context.Pagos.Include(e => e.PagosDetalle ).Where(e => e.PagoId == PagoId).FirstOrDefaultAsync();
+            var Pagos = await _context.Pagos.Include(e => e.PagosDetalle).Where(e => e.PagoId == PagoId).FirstOrDefaultAsync();
 
             if (Pagos == null)
             {
                 return NotFound();
             }
 
-            foreach (var item in Pagos.PagosDetalle )
+            foreach (var item in Pagos.PagosDetalle)
             {
                 Console.WriteLine($"{item.DetalleId}, {item.PagoId}, {item.PrestamoId}, {item.Cantidadpagos}");
             }
@@ -64,42 +64,42 @@ namespace PrestigeFinancial.Server.Controllers
         {
             if (!Existe(Pagos.PagoId))
             {
-                Prestamos? prestamo = new Prestamos();
-                foreach (var prestamoConsumido in Pagos.PagosDetalle)
+                Prestamos? prestamos = new Prestamos();
+                foreach (var prestamosConsumido in Pagos.PagosDetalle)
                 {
-                    prestamo = _context.Prestamos.Find(prestamoConsumido.PrestamoId);
+                    prestamos = _context.Prestamos.Find(prestamosConsumido.PrestamoId);
 
-                    if (prestamo != null)
+                    if (prestamos != null)
                     {
-                        prestamo.Coutas -= prestamoConsumido.Cantidadpagos;
-                        _context.Prestamos.Update(prestamo);
+                        prestamos.Coutas -= prestamosConsumido.Cantidadpagos;
+                        _context.Prestamos.Update(prestamos);
                         await _context.SaveChangesAsync();
-                        _context.Entry(prestamo).State = EntityState.Detached;
+                        _context.Entry(prestamos).State = EntityState.Detached;
                     }
                 }
                 await _context.Pagos.AddAsync(Pagos);
             }
             else
             {
-                var PagosAnterior = _context.Pagos.Include(e => e.PagosDetalle ).AsNoTracking()
+                var PagosAnterior = _context.Pagos.Include(e => e.PagosDetalle).AsNoTracking()
                 .FirstOrDefault(e => e.PagoId == Pagos.PagoId);
 
-                Prestamos? prestamo = new Prestamos();
+                Prestamos? prestamos = new Prestamos();
 
-                if (PagosAnterior != null && PagosAnterior.PagosDetalle  != null)
+                if (PagosAnterior != null && PagosAnterior.PagosDetalle != null)
                 {
-                    foreach (var prestamoConsumido in PagosAnterior.PagosDetalle )
+                    foreach (var prestamosConsumido in PagosAnterior.PagosDetalle)
                     {
-                        if (prestamoConsumido != null)
+                        if (prestamosConsumido != null)
                         {
-                            prestamo = _context.Prestamos.Find(prestamoConsumido.PrestamoId);
+                            prestamos = _context.Prestamos.Find(prestamosConsumido.PrestamoId);
 
-                            if (prestamo != null)
+                            if (prestamos != null)
                             {
-                                prestamo.Coutas += prestamoConsumido.Cantidadpagos;
-                                _context.Prestamos.Update(prestamo);
+                                prestamos.Coutas += prestamosConsumido.Cantidadpagos;
+                                _context.Prestamos.Update(prestamos);
                                 await _context.SaveChangesAsync();
-                                _context.Entry(prestamo).State = EntityState.Detached;
+                                _context.Entry(prestamos).State = EntityState.Detached;
                             }
                         }
                     }
@@ -107,41 +107,41 @@ namespace PrestigeFinancial.Server.Controllers
 
                 if (PagosAnterior != null)
                 {
-                    prestamo = _context.Prestamos.Find(PagosAnterior.PagoId);
+                    prestamos = _context.Prestamos.Find(PagosAnterior.PrestamoId);
 
-                    if (prestamo != null)
+                    if (prestamos != null)
                     {
-                        prestamo.Coutas -= PagosAnterior.CantidadCoutas;
-                        _context.Prestamos.Update(prestamo);
+                        prestamos.Coutas -= PagosAnterior.CantidadCoutasPagadas;
+                        _context.Prestamos.Update(prestamos);
                         await _context.SaveChangesAsync();
-                        _context.Entry(prestamo).State = EntityState.Detached;
+                        _context.Entry(prestamos).State = EntityState.Detached;
                     }
                 }
 
-                _context.Database.ExecuteSqlRaw($"Delete from PagosDetalle  where PagoId = {Pagos.PagoId}");
+                _context.Database.ExecuteSqlRaw($"Delete from PagosDetalle where PagoId = {Pagos.PagoId}");
 
-                foreach (var prestamoConsumido in Pagos.PagosDetalle )
+                foreach (var prestamosConsumido in Pagos.PagosDetalle)
                 {
-                    prestamo = _context.Prestamos.Find(prestamoConsumido.PrestamoId);
+                    prestamos = _context.Prestamos.Find(prestamosConsumido.PrestamoId);
 
-                    if (prestamo != null)
+                    if (prestamos != null)
                     {
-                        prestamo.Coutas -= prestamoConsumido.Cantidadpagos;
-                        _context.Prestamos.Update(prestamo);
+                        prestamos.Coutas -= prestamosConsumido.Cantidadpagos;
+                        _context.Prestamos.Update(prestamos);
                         await _context.SaveChangesAsync();
-                        _context.Entry(prestamo).State = EntityState.Detached;
-                        _context.Entry(prestamoConsumido).State = EntityState.Added;
+                        _context.Entry(prestamos).State = EntityState.Detached;
+                        _context.Entry(prestamosConsumido).State = EntityState.Added;
                     }
                 }
 
-                prestamo = _context.Prestamos.Find(Pagos.PagoId);
+                prestamos = _context.Prestamos.Find(Pagos.PrestamoId);
 
-                if (prestamo != null)
+                if (prestamos != null)
                 {
-                    prestamo.Coutas += Pagos.CantidadCoutas;
-                    _context.Prestamos.Update(prestamo);
+                    prestamos.Coutas += Pagos.CantidadCoutasPagadas;
+                    _context.Prestamos.Update(prestamos);
                     await _context.SaveChangesAsync();
-                    _context.Entry(prestamo).State = EntityState.Detached;
+                    _context.Entry(prestamos).State = EntityState.Detached;
                 }
                 _context.Pagos.Update(Pagos);
             }
@@ -150,34 +150,35 @@ namespace PrestigeFinancial.Server.Controllers
             _context.Entry(Pagos).State = EntityState.Detached;
             return Ok(Pagos);
         }
+        
 
         [HttpDelete("{PagoId}")]
         public async Task<IActionResult> EliminarPagos(int PagoId)
         {
-            var Pagos = await _context.Pagos.Include(e => e.PagosDetalle ).FirstOrDefaultAsync(e => e.PagoId == PagoId);
+            var Pagos = await _context.Pagos.Include(e => e.PagosDetalle).FirstOrDefaultAsync(e => e.PagoId == PagoId);
 
             if (Pagos == null)
             {
                 return NotFound();
             }
 
-            foreach (var prestamoConsumido in Pagos.PagosDetalle )
+            foreach (var prestamosConsumido in Pagos.PagosDetalle)
             {
-                var prestamo = await _context.Prestamos.FindAsync(prestamoConsumido.PrestamoId);
+                var prestamos = await _context.Prestamos.FindAsync(prestamosConsumido.PrestamoId);
 
-                if (prestamo != null)
+                if (prestamos != null)
                 {
-                    prestamo.Coutas += prestamoConsumido.Cantidadpagos;
-                    _context.Prestamos.Update(prestamo);
+                    prestamos.Coutas += prestamosConsumido.Cantidadpagos;
+                    _context.Prestamos.Update(prestamos);
                 }
             }
 
-            var prestamoInicial = await _context.Prestamos.FindAsync(Pagos.PagoId);
+            var prestamosInicial = await _context.Prestamos.FindAsync(Pagos.PrestamoId);
 
-            if (prestamoInicial != null)
+            if (prestamosInicial != null)
             {
-                prestamoInicial.Coutas += Pagos.CantidadCoutas;
-                _context.Prestamos.Update(prestamoInicial);
+                prestamosInicial.Coutas += Pagos.CantidadCoutasPagadas;
+                _context.Prestamos.Update(prestamosInicial);
             }
 
             _context.Pagos.Remove(Pagos);
@@ -187,5 +188,5 @@ namespace PrestigeFinancial.Server.Controllers
         }
 
     }
-}
 
+}

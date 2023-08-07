@@ -1,6 +1,8 @@
 @page "/RegistroGarantes"
 @page "/RegistroGarantes/{GaranteId:int}"
 @inject HttpClient httpClient
+@inject IToastService services 
+
 
 <EditForm Model="Garantes" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
@@ -96,17 +98,17 @@
         this.ListClientes= await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
     }
 
-    public async Task Buscar()
+    private async Task Buscar()
     {
-        var GarantesEncontrado = await httpClient.GetFromJsonAsync<Garantes>($"api/Garantes/{Garantes.GaranteId}");
-        if (GarantesEncontrado != null)
+        var response = await httpClient.GetAsync($"api/Garantes/{GaranteId}"); 
+        if (response.IsSuccessStatusCode)
         {
-            this.Garantes = GarantesEncontrado;
-            StateHasChanged();
+            Garantes = await response.Content.ReadFromJsonAsync<Garantes>();
+            services.ShowSuccess("Encontrado");
         }
         else
         {
-            Mensaje = "Garantes no encontrado";
+            services.ShowError("No se encontro el Garantes");
         }
     }
 
@@ -115,12 +117,13 @@
         using var response = await httpClient.PostAsJsonAsync("api/Garantes", Garantes);
         if (!response.IsSuccessStatusCode)
         {
-            Mensaje = response.ReasonPhrase ?? "error";
+            services.ShowError("No se pudo guardar");
             return;
         }
         var GarantesDevuelto = await response.Content.ReadFromJsonAsync<Garantes>();
         if (GarantesDevuelto is not null)
         {
+            services.ShowSuccess("Guardado satisfactoriamente");
             Garantes = GarantesDevuelto;
             StateHasChanged();
         }
@@ -131,6 +134,8 @@
     {
         this.Garantes = new Garantes();
         Mensaje = string.Empty;
+        services.ShowSuccess("Nuevo Registro");
+
     }
 
     public async Task Eliminar()
@@ -138,10 +143,11 @@
         using var response = await httpClient.DeleteAsync($"api/Garantes/{Garantes.GaranteId}");
         if (!response.IsSuccessStatusCode)
         {
-            Mensaje = response.ReasonPhrase ?? "error";
+            services.ShowError("No fue posible eliminar el cliente");
             return;
         }
         else
+            services.ShowSuccess("El cliente fue eliminado satisfactoriamente");
             Nuevo();
     }
 }

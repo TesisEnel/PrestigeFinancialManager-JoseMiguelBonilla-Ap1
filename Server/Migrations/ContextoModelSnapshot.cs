@@ -102,7 +102,7 @@ namespace PrestigeFinancial.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("CantidadCoutas")
+                    b.Property<int>("CantidadCoutasPagadas")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ClienteId")
@@ -116,9 +116,6 @@ namespace PrestigeFinancial.Server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<double>("Monto")
-                        .HasColumnType("REAL");
-
-                    b.Property<double>("MontoPago")
                         .HasColumnType("REAL");
 
                     b.HasKey("PagoId");
@@ -135,7 +132,7 @@ namespace PrestigeFinancial.Server.Migrations
                     b.Property<int>("Cantidadpagos")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PagoId")
+                    b.Property<int>("PagoId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("PrestamoId")
@@ -174,6 +171,9 @@ namespace PrestigeFinancial.Server.Migrations
 
                     b.Property<decimal>("Interes")
                         .HasColumnType("TEXT");
+
+                    b.Property<double>("MontoCoutas")
+                        .HasColumnType("REAL");
 
                     b.Property<double>("MontoSolicitado")
                         .HasColumnType("REAL");
@@ -269,7 +269,9 @@ namespace PrestigeFinancial.Server.Migrations
                 {
                     b.HasOne("PrestigeFinancial.Shared.Models.Pagos", null)
                         .WithMany("PagosDetalle")
-                        .HasForeignKey("PagoId");
+                        .HasForeignKey("PagoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PrestigeFinancial.Shared.Models.Clientes", b =>
