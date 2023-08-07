@@ -19,6 +19,13 @@ con los estandares, no sera aceptado y el sistema solicitara su ingreso de acuer
 
 ![image](https://github.com/JoseMiguelBonilla/PrestigeFinancialManager/assets/133031563/cac63f88-336e-4261-898c-bedc93fb8699)
 
+Cedula debe tener 11 digitos, el sistema solo acepta 10  de acuerdo al estandar de la Junta Central Electoral (JCE)
+![image](https://github.com/JoseMiguelBonilla/PrestigeFinancialManager/assets/133031563/66395f29-c1b9-4c29-9588-69dbcf00b041)
+
+Los telefonos deben tener 10 digitos, el sistema no acepta 10  de acuerdo al estandar de Republica Dominicana.
+
+![image](https://github.com/JoseMiguelBonilla/PrestigeFinancialManager/assets/133031563/f3310792-ad93-420f-a236-684b272a0a75)
+
 Pueden ingresarse tantos telefonos como sean necesarios, y se clasifican por Celular,Residencial y Oficina
 ![image](https://github.com/JoseMiguelBonilla/PrestigeFinancialManager/assets/133031563/5e711133-dc74-4828-bee5-fb28f04e000f)
 
