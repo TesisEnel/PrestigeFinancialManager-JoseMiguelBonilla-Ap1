@@ -15,6 +15,7 @@ namespace PrestigeFinancial.Shared.Models
 
         [Required(ErrorMessage = "El monto es requerido")]  
         [Range(0.01, double.MaxValue, ErrorMessage = "El monto debe ser mayor que cero")]
+        public int CantidadCoutas { get; set; }
         public double Monto { get; set; }
         public double MontoPago { get; set; }
 

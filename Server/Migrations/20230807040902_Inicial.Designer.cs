@@ -11,7 +11,7 @@ using PrestigeFinancial.Server.DAL;
 namespace PrestigeFinancial.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20230806225740_Inicial")]
+    [Migration("20230807040902_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -105,6 +105,9 @@ namespace PrestigeFinancial.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("CantidadCoutas")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ClienteId")
                         .HasColumnType("INTEGER");
 
@@ -130,6 +133,9 @@ namespace PrestigeFinancial.Server.Migrations
                 {
                     b.Property<int>("DetalleId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Cantidadpagos")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("PagoId")

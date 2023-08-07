@@ -102,6 +102,9 @@ namespace PrestigeFinancial.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("CantidadCoutas")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ClienteId")
                         .HasColumnType("INTEGER");
 
@@ -127,6 +130,9 @@ namespace PrestigeFinancial.Server.Migrations
                 {
                     b.Property<int>("DetalleId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Cantidadpagos")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("PagoId")

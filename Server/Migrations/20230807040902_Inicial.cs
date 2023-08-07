@@ -56,6 +56,7 @@ namespace PrestigeFinancial.Server.Migrations
                     Fecha = table.Column<DateTime>(type: "TEXT", nullable: false),
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
                     Concepto = table.Column<string>(type: "TEXT", nullable: false),
+                    CantidadCoutas = table.Column<int>(type: "INTEGER", nullable: false),
                     Monto = table.Column<double>(type: "REAL", nullable: false),
                     MontoPago = table.Column<double>(type: "REAL", nullable: false)
                 },
@@ -141,6 +142,7 @@ namespace PrestigeFinancial.Server.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     PagoId = table.Column<int>(type: "INTEGER", nullable: true),
                     PrestamoId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Cantidadpagos = table.Column<int>(type: "INTEGER", nullable: false),
                     ValorPagado = table.Column<double>(type: "REAL", nullable: false)
                 },
                 constraints: table =>

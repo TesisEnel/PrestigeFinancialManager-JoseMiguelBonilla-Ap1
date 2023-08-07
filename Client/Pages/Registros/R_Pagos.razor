@@ -46,9 +46,9 @@
                 </div>
 
                 <div class="col-6">
-                    <label for="txtMonto" class="form-label"> Monto:</label>
-                    <input type="number" id="txtMonto" class="form-control" @bind-value="Pagos.Monto" />
-                    <ValidationMessage For="@(() => Pagos.Monto)" />
+                    <label for="txtCantidadCoutas" class="form-label"> Cantidad de coutas a pagar :</label>
+                    <input type="number" id="txtCantidadCoutas" class="form-control" @bind-value="Pagos.CantidadCoutas" />
+                    <ValidationMessage For="@(() => Pagos.CantidadCoutas)" />
                 </div>
             </div>
             <div class="card-footer d-flex justify-content-center">
@@ -142,7 +142,7 @@
             validacion = false;
         }
 
-        if (Pagos.Monto == 0)
+        if (Pagos.CantidadCoutas == 0)
         {
             validacion = false;
         }

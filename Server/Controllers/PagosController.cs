@@ -11,175 +11,181 @@ namespace PrestigeFinancial.Server.Controllers
     [Route("api/[controller]")]
     public class PagosController : ControllerBase
     {
-        private readonly Contexto _contexto;
+        private readonly Contexto _context;
 
         public PagosController(Contexto contexto)
         {
-            _contexto = contexto;
+            _context = contexto;
         }
 
-        [HttpGet("{pagosId}")]
-        public ActionResult<bool> Existe(int pagosId)
+                public bool Existe(int PagoId)
         {
-            return _contexto.Pagos.Any(o => o.PagoId == pagosId);
-        }
-
-        [HttpPost]
-        public ActionResult<bool> Guardar(Pagos pago)
-        {
-            if (!Existe(pago.PagoId).Value)
-            {
-                return Insertar(pago);
-            }
-            else
-            {
-                return Modificar(pago);
-            }
-        }
-
-        [HttpDelete("{pagosId}")]
-        public ActionResult<bool> Eliminar(int pagosId)
-        {
-            var pago = _contexto.Pagos.Include(p => p.PagosDetalle).FirstOrDefault(p => p.PagoId == pagosId);
-            if (pago == null)
-            {
-                return NotFound();
-            }
-
-            var cliente = _contexto.Clientes.Find(pago.ClienteId);
-
-            if (pago.PagosDetalle != null)
-            {
-                foreach (var detalle in pago.PagosDetalle)
-                {
-                    var prestamo = _contexto.Prestamos.Find(detalle.PrestamoId);
-                    if (prestamo != null)
-                    {
-                        prestamo.Balance += detalle.ValorPagado;
-                        _contexto.Entry(prestamo).State = EntityState.Modified;
-                    }
-
-                    if (cliente != null)
-                    {
-                        cliente.Balance += detalle.ValorPagado;
-                        _contexto.Entry(cliente).State = EntityState.Modified;
-                    }
-                }
-            }
-
-            var pagosDetalleAEliminar = _contexto.Set<PagosDetalle>().Where(pd => pd.PagoId == pago.PagoId);
-            _contexto.Set<PagosDetalle>().RemoveRange(pagosDetalleAEliminar);
-            _contexto.Pagos.Remove(pago);
-            _contexto.SaveChanges();
-
-            return true;
-        }
-
-        [HttpGet("{pagosId}")]
-        public ActionResult<Pagos> Buscar(int pagosId)
-        {
-            var pago = _contexto.Pagos.Include(o => o.PagosDetalle).FirstOrDefault(o => o.PagoId == pagosId);
-            if (pago == null)
-            {
-                return NotFound();
-            }
-
-            return pago;
+            return (_context.Pagos?.Any(e => e.PagoId == PagoId)).GetValueOrDefault();
         }
 
         [HttpGet]
-        public ActionResult<List<Pagos>> GetList(Expression<Func<Pagos, bool>> criterio)
+        public async Task<ActionResult<IEnumerable<Pagos>>> Obtener()
         {
-            var pagos = _contexto.Pagos.AsNoTracking().Where(criterio).ToList();
-            return pagos;
+            if (_context.Pagos == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return await _context.Pagos.ToListAsync();
+            }
         }
 
-        private ActionResult<bool> Insertar(Pagos pago)
+        [HttpGet("{PagoId}")]
+        public async Task<ActionResult<Pagos>> ObtenerPagos(int PagoId)
         {
-            var cliente = _contexto.Clientes.Find(pago.ClienteId);
-
-            if (pago.PagosDetalle != null)
+            if (_context.Pagos == null)
             {
-                foreach (var detalle in pago.PagosDetalle)
+                return NotFound();
+            }
+
+            var Pagos = await _context.Pagos.Include(e => e.PagosDetalle ).Where(e => e.PagoId == PagoId).FirstOrDefaultAsync();
+
+            if (Pagos == null)
+            {
+                return NotFound();
+            }
+
+            foreach (var item in Pagos.PagosDetalle )
+            {
+                Console.WriteLine($"{item.DetalleId}, {item.PagoId}, {item.PrestamoId}, {item.Cantidadpagos}");
+            }
+
+            return Pagos;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Pagos>> PostPagos(Pagos Pagos)
+        {
+            if (!Existe(Pagos.PagoId))
+            {
+                Prestamos? prestamo = new Prestamos();
+                foreach (var prestamoConsumido in Pagos.PagosDetalle)
                 {
-                    var prestamo = _contexto.Prestamos.Find(detalle.PrestamoId);
+                    prestamo = _context.Prestamos.Find(prestamoConsumido.PrestamoId);
 
                     if (prestamo != null)
                     {
-                        prestamo.Balance -= detalle.ValorPagado;
-                        _contexto.Entry(prestamo).State = EntityState.Modified;
-                    }
-
-                    if (cliente != null)
-                    {
-                        cliente.Balance -= detalle.ValorPagado;
-                        _contexto.Entry(cliente).State = EntityState.Modified;
+                        prestamo.Coutas -= prestamoConsumido.Cantidadpagos;
+                        _context.Prestamos.Update(prestamo);
+                        await _context.SaveChangesAsync();
+                        _context.Entry(prestamo).State = EntityState.Detached;
                     }
                 }
+                await _context.Pagos.AddAsync(Pagos);
+            }
+            else
+            {
+                var PagosAnterior = _context.Pagos.Include(e => e.PagosDetalle ).AsNoTracking()
+                .FirstOrDefault(e => e.PagoId == Pagos.PagoId);
+
+                Prestamos? prestamo = new Prestamos();
+
+                if (PagosAnterior != null && PagosAnterior.PagosDetalle  != null)
+                {
+                    foreach (var prestamoConsumido in PagosAnterior.PagosDetalle )
+                    {
+                        if (prestamoConsumido != null)
+                        {
+                            prestamo = _context.Prestamos.Find(prestamoConsumido.PrestamoId);
+
+                            if (prestamo != null)
+                            {
+                                prestamo.Coutas += prestamoConsumido.Cantidadpagos;
+                                _context.Prestamos.Update(prestamo);
+                                await _context.SaveChangesAsync();
+                                _context.Entry(prestamo).State = EntityState.Detached;
+                            }
+                        }
+                    }
+                }
+
+                if (PagosAnterior != null)
+                {
+                    prestamo = _context.Prestamos.Find(PagosAnterior.PagoId);
+
+                    if (prestamo != null)
+                    {
+                        prestamo.Coutas -= PagosAnterior.CantidadCoutas;
+                        _context.Prestamos.Update(prestamo);
+                        await _context.SaveChangesAsync();
+                        _context.Entry(prestamo).State = EntityState.Detached;
+                    }
+                }
+
+                _context.Database.ExecuteSqlRaw($"Delete from PagosDetalle  where PagoId = {Pagos.PagoId}");
+
+                foreach (var prestamoConsumido in Pagos.PagosDetalle )
+                {
+                    prestamo = _context.Prestamos.Find(prestamoConsumido.PrestamoId);
+
+                    if (prestamo != null)
+                    {
+                        prestamo.Coutas -= prestamoConsumido.Cantidadpagos;
+                        _context.Prestamos.Update(prestamo);
+                        await _context.SaveChangesAsync();
+                        _context.Entry(prestamo).State = EntityState.Detached;
+                        _context.Entry(prestamoConsumido).State = EntityState.Added;
+                    }
+                }
+
+                prestamo = _context.Prestamos.Find(Pagos.PagoId);
+
+                if (prestamo != null)
+                {
+                    prestamo.Coutas += Pagos.CantidadCoutas;
+                    _context.Prestamos.Update(prestamo);
+                    await _context.SaveChangesAsync();
+                    _context.Entry(prestamo).State = EntityState.Detached;
+                }
+                _context.Pagos.Update(Pagos);
             }
 
-            _contexto.Pagos.Add(pago);
-            _contexto.SaveChanges();
-
-            return true;
+            await _context.SaveChangesAsync();
+            _context.Entry(Pagos).State = EntityState.Detached;
+            return Ok(Pagos);
         }
 
-        private ActionResult<bool> Modificar(Pagos pago)
+        [HttpDelete("{PagoId}")]
+        public async Task<IActionResult> EliminarPagos(int PagoId)
         {
-            var pagoAnterior = _contexto.Pagos
-                .Where(p => p.PagoId == pago.PagoId)
-                .Include(p => p.PagosDetalle)
-                .AsNoTracking()
-                .SingleOrDefault();
+            var Pagos = await _context.Pagos.Include(e => e.PagosDetalle ).FirstOrDefaultAsync(e => e.PagoId == PagoId);
 
-            var cliente = _contexto.Clientes.Find(pago.ClienteId);
-
-            if (pagoAnterior != null && pagoAnterior.PagosDetalle != null)
+            if (Pagos == null)
             {
-                foreach (var detalle in pagoAnterior.PagosDetalle)
-                {
-                    var prestamo = _contexto.Prestamos.Find(detalle.PrestamoId);
-                    if (prestamo != null)
-                    {
-                        prestamo.Balance += detalle.ValorPagado;
-                        _contexto.Entry(prestamo).State = EntityState.Modified;
-                    }
+                return NotFound();
+            }
 
-                    if (cliente != null)
-                    {
-                        cliente.Balance += detalle.ValorPagado;
-                        _contexto.Entry(cliente).State = EntityState.Modified;
-                    }
+            foreach (var prestamoConsumido in Pagos.PagosDetalle )
+            {
+                var prestamo = await _context.Prestamos.FindAsync(prestamoConsumido.PrestamoId);
+
+                if (prestamo != null)
+                {
+                    prestamo.Coutas += prestamoConsumido.Cantidadpagos;
+                    _context.Prestamos.Update(prestamo);
                 }
             }
 
-            if (pago.PagosDetalle != null)
-            {
-                foreach (var detalle in pago.PagosDetalle)
-                {
-                    var prestamo = _contexto.Prestamos.Find(detalle.PrestamoId);
-                    if (prestamo != null)
-                    {
-                        prestamo.Balance -= detalle.ValorPagado;
-                        _contexto.Entry(prestamo).State = EntityState.Modified;
-                    }
+            var prestamoInicial = await _context.Prestamos.FindAsync(Pagos.PagoId);
 
-                    if (cliente != null)
-                    {
-                        cliente.Balance -= detalle.ValorPagado;
-                        _contexto.Entry(cliente).State = EntityState.Modified;
-                    }
-                }
+            if (prestamoInicial != null)
+            {
+                prestamoInicial.Coutas += Pagos.CantidadCoutas;
+                _context.Prestamos.Update(prestamoInicial);
             }
 
-            var pagosDetalleAEliminar = _contexto.Set<PagosDetalle>().Where(pd => pd.PagoId == pago.PagoId);
-            _contexto.Set<PagosDetalle>().RemoveRange(pagosDetalleAEliminar);
-            _contexto.Entry(pago).State = EntityState.Modified;
-            _contexto.SaveChanges();
+            _context.Pagos.Remove(Pagos);
+            await _context.SaveChangesAsync();
 
-            return true;
+            return NoContent();
         }
+
     }
-
 }
 
