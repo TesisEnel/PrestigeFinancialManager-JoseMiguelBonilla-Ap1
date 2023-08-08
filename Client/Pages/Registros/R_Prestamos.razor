@@ -71,6 +71,36 @@
                     <InputNumber @bind-Value="Prestamos.Coutas" class="form-control" />
                     <ValidationMessage For="@(() => Prestamos.Coutas)" />
                 </div>
+                <div>
+                <button type="button" class="btn btn-outline-info" @onclick="CalcularAmortizacion">Calcular Amortización <i class="oi oi-calculator" /></button>
+                   </div>  
+                      @if (TablaAmortizacion.Any())
+                        {
+                            <h4>Tabla de Amortización</h4>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Mes</th>
+                                        <th>Fecha de Pago</th>
+                                        <th>Pago de Interés</th>
+                                        <th>Pago de Capital</th>
+                                        <th>Saldo Restante</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var entrada in TablaAmortizacion)
+                                    {
+                                        <tr>
+                                            <td>@entrada.Mes</td>
+                                            <td>@entrada.FechaPago.ToShortDateString()</td>
+                                            <td>@entrada.PagoInteres.ToString("C2")</td>
+                                            <td>@entrada.PagoCapital.ToString("C2")</td>
+                                            <td>@entrada.SaldoRestante.ToString("C2")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
 
             </div>
             <div class="card-footer d-flex justify-content-center">
@@ -90,14 +120,47 @@
 @code {
 
     [Parameter]
-
     public int PrestamoId { get; set; }
-
+    public int CoutasOriginal { get; set; }
     public Prestamos Prestamos { get; set; } = new Prestamos();
-
     public string Mensaje { get; set; } = string.Empty;
     public List<Clientes> ListClientes { get; set; } = new List<Clientes>();
     public List<Garantes> ListGarantes { get; set; } = new List<Garantes>();
+    private List<EntradaAmortizacion> TablaAmortizacion { get; set; } = new List<EntradaAmortizacion>();
+    public class EntradaAmortizacion
+    {
+        public int Mes { get; set; }
+        public DateTime FechaPago { get; set; }
+        public double PagoInteres { get; set; }
+        public double PagoCapital { get; set; }
+        public double SaldoRestante { get; set; }
+    }
+
+    private void CalcularAmortizacion()
+    {
+        TablaAmortizacion.Clear();
+
+        double capital = Prestamos.MontoSolicitado;
+        double tasaInteres = Convert.ToDouble(Prestamos.Interes) / 100.0 / 12; 
+        int meses = Prestamos.Coutas;
+
+        for (int mes = 1; mes <= meses; mes++)
+        {
+            double pagoInteres = capital * tasaInteres;
+            double pagoCapital = Prestamos.MontoSolicitado / meses;
+
+            TablaAmortizacion.Add(new EntradaAmortizacion
+            {
+                Mes = mes,
+                FechaPago = Prestamos.FechaPrestamo.AddMonths(mes),
+                PagoInteres = pagoInteres,
+                PagoCapital = pagoCapital,
+                SaldoRestante = capital - pagoCapital
+            });
+
+            capital -= pagoCapital;
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,7 +171,6 @@
         }
         this.ListClientes= await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
         this.ListGarantes= await httpClient.GetFromJsonAsync<List<Garantes>>("api/Garantes");
-
     }
 
     public async Task Buscar()

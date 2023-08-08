@@ -20,9 +20,9 @@ namespace PrestigeFinancial.Server.Migrations
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Nombres = table.Column<string>(type: "TEXT", nullable: false),
-                    cedula = table.Column<string>(type: "TEXT", maxLength: 11, nullable: true),
+                    cedula = table.Column<string>(type: "TEXT", maxLength: 11, nullable: false),
                     FechaNacimiento = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Direccion = table.Column<string>(type: "TEXT", nullable: true),
+                    Direccion = table.Column<string>(type: "TEXT", nullable: false),
                     Balance = table.Column<double>(type: "REAL", nullable: false)
                 },
                 constraints: table =>
@@ -38,9 +38,9 @@ namespace PrestigeFinancial.Server.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
                     Nombres = table.Column<string>(type: "TEXT", nullable: true),
-                    cedula = table.Column<string>(type: "TEXT", maxLength: 11, nullable: true),
-                    Telefono = table.Column<string>(type: "TEXT", maxLength: 10, nullable: true),
-                    Direccion = table.Column<string>(type: "TEXT", nullable: true)
+                    cedula = table.Column<string>(type: "TEXT", maxLength: 11, nullable: false),
+                    Telefono = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
+                    Direccion = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -55,6 +55,7 @@ namespace PrestigeFinancial.Server.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Fecha = table.Column<DateTime>(type: "TEXT", nullable: false),
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
+                    PrestamoId = table.Column<int>(type: "INTEGER", nullable: false),
                     Concepto = table.Column<string>(type: "TEXT", nullable: false),
                     CantidadCoutasPagadas = table.Column<int>(type: "INTEGER", nullable: false),
                     Monto = table.Column<double>(type: "REAL", nullable: false)
@@ -78,6 +79,7 @@ namespace PrestigeFinancial.Server.Migrations
                     MontoSolicitado = table.Column<double>(type: "REAL", nullable: false),
                     Interes = table.Column<decimal>(type: "TEXT", nullable: false),
                     Coutas = table.Column<int>(type: "INTEGER", nullable: false),
+                    CoutasOriginal = table.Column<int>(type: "INTEGER", nullable: false),
                     MontoCoutas = table.Column<double>(type: "REAL", nullable: false),
                     Balance = table.Column<double>(type: "REAL", nullable: false),
                     TipoPrestamo = table.Column<string>(type: "TEXT", nullable: true)

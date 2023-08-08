@@ -50,7 +50,7 @@
                                 <option value="@Pagos.PrestamoId" hidden="hidden">[Seleccione]</option>
                              @foreach (var tipo in ListPrestamos)
 								{
-									<option value="@tipo.PrestamoId"> "@tipo.PrestamoId" </option>
+									<option value="@tipo.PrestamoId"> ID del Prestamo = @tipo.PrestamoId | Coutas Pendientes = @tipo.Coutas  </option>
 								}
                             </InputSelect>
                             <ValidationMessage For="@(() => PagosDetalle.PrestamoId)" />
@@ -70,7 +70,7 @@
                         <thead>
                             <tr>
                                 <th>PrestamoId</th>
-                                <th>Cantidad de pagos de coutas</th>
+                                <th>Cantidad de pagos de cuotas</th>
                             </tr>
                         </thead>
 

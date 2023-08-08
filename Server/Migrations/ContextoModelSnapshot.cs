@@ -27,6 +27,7 @@ namespace PrestigeFinancial.Server.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<string>("Direccion")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("FechaNacimiento")
@@ -37,6 +38,7 @@ namespace PrestigeFinancial.Server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("cedula")
+                        .IsRequired()
                         .HasMaxLength(11)
                         .HasColumnType("TEXT");
 
@@ -78,16 +80,19 @@ namespace PrestigeFinancial.Server.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Direccion")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Nombres")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Telefono")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("cedula")
+                        .IsRequired()
                         .HasMaxLength(11)
                         .HasColumnType("TEXT");
 
@@ -117,6 +122,9 @@ namespace PrestigeFinancial.Server.Migrations
 
                     b.Property<double>("Monto")
                         .HasColumnType("REAL");
+
+                    b.Property<int>("PrestamoId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("PagoId");
 
@@ -161,6 +169,9 @@ namespace PrestigeFinancial.Server.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Coutas")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CoutasOriginal")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("FechaPrestamo")

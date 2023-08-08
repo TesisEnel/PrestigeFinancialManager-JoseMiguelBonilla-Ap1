@@ -13,6 +13,7 @@ namespace PrestigeFinancial.Shared.Models
         
         [Required(ErrorMessage =("El concepto es requerido"))]
         public String? Concepto{get; set;}
+
         public int CantidadCoutasPagadas { get; set;}
         public double Monto { get; set; }
 

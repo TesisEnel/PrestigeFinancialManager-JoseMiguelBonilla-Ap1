@@ -22,7 +22,9 @@
                         <th>Fecha de desembolso </th>
                         <th>MontoSolicitado</th>
                         <th>Interes</th>
-                        <th>Coutas</th>
+                        <th>Coutas Establecidas</th>
+                        <th>Coutas Pendientes</th>
+
                         <th></th>
                     </tr>
                 </thead>
@@ -35,7 +37,9 @@
                             <td>@Prestamos.FechaPrestamo</td>
                             <td>@Prestamos.MontoSolicitado</td>
                             <td>@Prestamos.Interes</td>
+                            <td>@Prestamos.CoutasOriginal</td>
                             <td>@Prestamos.Coutas</td>
+
                             <td><a href="RegistroPrestamos/@Prestamos.PrestamoId">Ver</a></td>
                         </tr>
                     }
