@@ -186,6 +186,9 @@ namespace PrestigeFinancial.Server.Migrations
                     b.Property<double>("MontoCoutas")
                         .HasColumnType("REAL");
 
+                    b.Property<double>("MontoInteres")
+                        .HasColumnType("REAL");
+
                     b.Property<double>("MontoSolicitado")
                         .HasColumnType("REAL");
 

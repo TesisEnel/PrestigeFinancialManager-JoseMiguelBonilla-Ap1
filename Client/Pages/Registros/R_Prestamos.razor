@@ -69,6 +69,7 @@
                 <div class="col-md-6">
                     <label class="form-label" for="Coutas">Coutas expresadas en meses</label>
                     <InputNumber @bind-Value="Prestamos.Coutas" class="form-control" />
+
                     <ValidationMessage For="@(() => Prestamos.Coutas)" />
                 </div>
 
@@ -148,7 +149,7 @@
     
     private void LimpiarAmortizacion()
     {
-        ShowInfo("Nuevo calculo de amortizacion");
+        services.ShowInfo("Nuevo calculo de amortizacion");
         TablaAmortizacion.Clear();
     }
 

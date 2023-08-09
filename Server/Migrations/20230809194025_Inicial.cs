@@ -79,6 +79,7 @@ namespace PrestigeFinancial.Server.Migrations
                     MontoSolicitado = table.Column<double>(type: "REAL", nullable: false),
                     Interes = table.Column<decimal>(type: "TEXT", nullable: false),
                     Coutas = table.Column<int>(type: "INTEGER", nullable: false),
+                    MontoInteres = table.Column<double>(type: "REAL", nullable: false),
                     CoutasOriginal = table.Column<int>(type: "INTEGER", nullable: false),
                     MontoCoutas = table.Column<double>(type: "REAL", nullable: false),
                     Balance = table.Column<double>(type: "REAL", nullable: false),

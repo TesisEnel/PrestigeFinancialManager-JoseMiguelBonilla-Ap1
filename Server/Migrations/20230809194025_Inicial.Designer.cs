@@ -11,7 +11,7 @@ using PrestigeFinancial.Server.DAL;
 namespace PrestigeFinancial.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20230808153736_Inicial")]
+    [Migration("20230809194025_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -187,6 +187,9 @@ namespace PrestigeFinancial.Server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<double>("MontoCoutas")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("MontoInteres")
                         .HasColumnType("REAL");
 
                     b.Property<double>("MontoSolicitado")
