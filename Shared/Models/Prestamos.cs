@@ -21,6 +21,7 @@ namespace PrestigeFinancial.Shared.Models
 
         [Required(ErrorMessage ="Las coutas son requeridas")]
         public int Coutas { get; set; }
+        public double MontoInteres { get; set; }
         public int CoutasOriginal { get; set; }
         public double MontoCoutas { get; set; }
         public double Balance { get; set; }
