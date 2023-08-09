@@ -71,22 +71,26 @@
                     <InputNumber @bind-Value="Prestamos.Coutas" class="form-control" />
                     <ValidationMessage For="@(() => Prestamos.Coutas)" />
                 </div>
+
                 <div>
                 <button type="button" class="btn btn-outline-info" @onclick="CalcularAmortizacion">Calcular Amortización <i class="oi oi-calculator" /></button>
+                <button type="button" class="btn btn-outline-danger" @onclick="LimpiarAmortizacion">Limpiar Amortización <i class="oi oi-trash" /></button>
+ 
                    </div>  
                       @if (TablaAmortizacion.Any())
                         {
-
                             <h4>Tabla de Amortización</h4>
+                        <h4>Total a pagar: @CalcularTotalAPagar().ToString("C2")</h4>
+
                             <table class="table">
                                 <thead>
                                     <tr>
                                         <th>Mes</th>
                                         <th>Fecha de Pago</th>
-                                        <th>Pago de Interés</th>
-                                        <th>Pago de Capital</th>
-                                        <th>Saldo Restante</th>
-
+                                        <th>Capital</th>
+                                        <th>Interes</th>
+                                        <th>Pago de Cuota</th>
+                                        <th>Balance</th>     
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -95,18 +99,15 @@
                                         <tr>
                                             <td>@entrada.Mes</td>
                                             <td>@entrada.FechaPago.ToShortDateString()</td>
-                                            <td>@entrada.PagoInteres.ToString("C2")</td>
-                                            <td>@entrada.PagoCapital.ToString("C2")</td>
-                                            <td>@entrada.SaldoRestante.ToString("C2")</td>
+                                            <td>@entrada.Capital.ToString("C2")</td>
+                                            <td>@entrada.Interes.ToString("C2")</td>
+                                            <td>@entrada.MontoCouta.ToString("C2")</td>
+                                            <td>@entrada.Balance.ToString("C2")</td>
                                         </tr>
                                     }
-
                                 </tbody>
                             </table>
-                                <h5>Cantidad Total a Pagar: @CantidadTotalPagar.ToString("C2")</h5>
-
                         }
-
 
             </div>
             <div class="card-footer d-flex justify-content-center">
@@ -129,8 +130,6 @@
 
     public int PrestamoId { get; set; }
     public int CoutasOriginal { get; set; }
-
-    public double CantidadTotalPagar = 1;
     public Prestamos Prestamos { get; set; } = new Prestamos();
     public string Mensaje { get; set; } = string.Empty;
     public List<Clientes> ListClientes { get; set; } = new List<Clientes>();
@@ -141,38 +140,59 @@
     {
         public int Mes { get; set; }
         public DateTime FechaPago { get; set; }
-        public double PagoInteres { get; set; }
-        public double PagoCapital { get; set; }
-        public double SaldoRestante { get; set; }
-        public double DeudaTotal  { get; set; }
+        public double MontoCouta { get; set; }
+        public double Capital { get; set; }
+        public double Interes { get; set; }
+        public double Balance { get; set; }
+    }
+    
+    private void LimpiarAmortizacion()
+    {
+        ShowInfo("Nuevo calculo de amortizacion");
+        TablaAmortizacion.Clear();
     }
 
     private void CalcularAmortizacion()
     {
         TablaAmortizacion.Clear();
+        //convirtiendo datos a utiles
+        double tasa = Convert.ToDouble(Prestamos.Interes);
+        int tiempo = Prestamos.Coutas;
+        double monto = Prestamos.MontoSolicitado;
+        //amortizacion
+	    double tasaMensual = tasa /100/ 12;
+        double factor = (Math.Pow(1 + tasaMensual, tiempo) * tasaMensual) / (Math.Pow(1 + tasaMensual, tiempo) - 1);
+        double couta =  monto * factor;  
+        double balance = monto;
+        double interes, capital;
 
-        double capital = Prestamos.MontoSolicitado;
-        double tasaInteres = Convert.ToDouble(Prestamos.Interes) / 10 / 12; 
-        int meses = Prestamos.Coutas;
-
-        for (int mes = 1; mes <= meses; mes++)
+        for (int mes = 1; mes <= tiempo; mes++)
         {
-            double pagoInteres = capital * (tasaInteres );
-            double pagoCapital = Prestamos.MontoSolicitado / meses;
-            double deudaTotal = Prestamos.MontoSolicitado * tasaInteres;
-
+            interes = balance * (tasa / 10 / 12);
+            capital = couta - interes;
+            balance -= capital;
             TablaAmortizacion.Add(new EntradaAmortizacion
             {
                 Mes = mes,
                 FechaPago = Prestamos.FechaPrestamo.AddMonths(mes),
-                DeudaTotal = deudaTotal,
-                PagoInteres = pagoInteres,
-                PagoCapital = pagoCapital,
-                SaldoRestante = capital - pagoCapital
+                Capital = capital,
+                Interes = interes,
+                MontoCouta = couta,
+                Balance = balance,
+
             });
 
-            capital -= pagoCapital;
+            capital -= capital;
         }
+    }
+
+    private double CalcularTotalAPagar()
+    {
+        if (TablaAmortizacion.Count > 0)
+        {
+            return TablaAmortizacion.Sum(entrada => entrada.MontoCouta);
+        }
+        return 0;
     }
 
     protected override async Task OnInitializedAsync()
