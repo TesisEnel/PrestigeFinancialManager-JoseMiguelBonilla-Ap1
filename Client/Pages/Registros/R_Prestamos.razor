@@ -69,7 +69,6 @@
                 <div class="col-md-6">
                     <label class="form-label" for="Coutas">Coutas expresadas en meses</label>
                     <InputNumber @bind-Value="Prestamos.Coutas" class="form-control" />
-
                     <ValidationMessage For="@(() => Prestamos.Coutas)" />
                 </div>
 
@@ -163,27 +162,27 @@
         //amortizacion
 	    double tasaMensual = tasa /100/ 12;
         double factor = (Math.Pow(1 + tasaMensual, tiempo) * tasaMensual) / (Math.Pow(1 + tasaMensual, tiempo) - 1);
-        double couta =  monto * factor;  
+        double montoCouta =  monto * factor; 
+
         double balance = monto;
         double interes, capital;
 
         for (int mes = 1; mes <= tiempo; mes++)
         {
-            interes = balance * (tasa / 10 / 12);
-            capital = couta - interes;
+            interes = balance * (tasa / 100 / 12);
+            capital = montoCouta - interes;
             balance -= capital;
+
             TablaAmortizacion.Add(new EntradaAmortizacion
             {
                 Mes = mes,
                 FechaPago = Prestamos.FechaPrestamo.AddMonths(mes),
                 Capital = capital,
                 Interes = interes,
-                MontoCouta = couta,
+                MontoCouta = montoCouta,
                 Balance = balance,
-
             });
 
-            capital -= capital;
         }
     }
 
@@ -207,23 +206,34 @@
         this.ListGarantes= await httpClient.GetFromJsonAsync<List<Garantes>>("api/Garantes");
     }
 
-    public async Task Buscar()
+    public async Task<bool> Buscar()
     {
-        var PrestamosEncontrado = await httpClient.GetFromJsonAsync<Prestamos>($"api/Prestamos/{Prestamos.PrestamoId}");
-        if (PrestamosEncontrado != null)
+        try
         {
-            services.ShowSuccess("Prestamos encontrado");
-            this.Prestamos = PrestamosEncontrado;
-            StateHasChanged();
+            var prestamo = await httpClient.GetFromJsonAsync<Prestamos>($"api/Prestamos/{Prestamos.PrestamoId}");
+
+            if (prestamo != null)
+            {
+                this.Prestamos = prestamo;
+                StateHasChanged();
+                services.ShowSuccess("El Prestamo ha sido encontrado");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-        else
+        catch
         {
-            services.ShowError("Prestamos no encontrado");
+            services.ShowError("El Prestamos no  ha sido encontrado");
+            return false;
         }
     }
 
     public async Task Guardar()
     {
+        Prestamos.CoutasOriginal = Prestamos.Coutas;
         using var response = await httpClient.PostAsJsonAsync("api/Prestamos", Prestamos);
         if (!response.IsSuccessStatusCode)
         {
