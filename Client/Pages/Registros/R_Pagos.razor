@@ -48,7 +48,7 @@
                             <label>Prestamo: </label>
                             <InputSelect @bind-Value="PagosDetalle.PrestamoId" class="form-select">
                                 <option value="@Pagos.PrestamoId" hidden="hidden">[Seleccione]</option>
-                             @foreach (var tipo in ListPrestamos)
+                             @foreach (var tipo in ListPrestamos.Where(P=>P.Coutas>0))
 								{
 									<option value="@tipo.PrestamoId"> ID del Prestamo = @tipo.PrestamoId | Coutas Pendientes = @tipo.Coutas  </option>
 								}
@@ -102,14 +102,14 @@
 
                 <hr>
 
-                @*Producido*@
+                @*Pagado*@
                 <fieldset class="border-success border border-1">
                     <legend>Pagado</legend>
                     <div class="row">
                         <div class="col-3">
                             <InputSelect @bind-Value="PagosDetalle.PrestamoId" class="form-select">
                                 <option value="@Pagos.PrestamoId" hidden="hidden">[Seleccione]</option>
-                             @foreach (var tipo in ListPrestamos)
+                             @foreach (var tipo in ListPrestamos.Where(P=>P.Coutas>0))
 								{
 									<option value="@tipo.PrestamoId"> "@tipo.PrestamoId" </option>
 								}
@@ -141,6 +141,7 @@
     public PagosDetalle PagosDetalle { get; set; } = new PagosDetalle();
 
     private List<Prestamos> ListPrestamos = new List<Prestamos>();
+
     private List<Clientes> ListClientes = new List<Clientes>();
     public string ValidacionDetalle { get; set; } = string.Empty;
 
@@ -191,6 +192,13 @@
 
     public async Task Aplicar()
     {
+        if (Pagos.PagosDetalle.Count() <=0)
+        {
+            services.ShowError("Tiene que agregar un pago");
+            services.ShowInfo("Sugerimos revisar los datos ingresados");
+            return;
+        }
+
         Pagos.PagosDetalle = this.Pagos.PagosDetalle.ToList();
         using var response = await httpClient.PostAsJsonAsync("api/Pagos", Pagos);
 
@@ -201,6 +209,7 @@
 
             return;
         }
+        
         var pagodevuelto = await response.Content.ReadFromJsonAsync<Pagos>();
         if (pagodevuelto is not null)
         {
@@ -258,13 +267,18 @@
             {
                 int Temp = 0;
 
-                if (PagosDetalle.Cantidadpagos >= prestamos.Coutas)
+                if (PagosDetalle.Cantidadpagos > prestamos.Coutas)
                 {
                     services.ShowError("La cantidad de coutas a pagar es mayor a las coutas establecidas del prestamo");
                     services.ShowInfo("Sugerimos revisar los datos ingresados");
                     return;
                 }
-
+                if (prestamos.Coutas <= 0)
+                {
+                    services.ShowError("Dicho prestamo no tiene coutas pendientes");
+                    services.ShowInfo("Sugerimos revisar los datos ingresados");
+                    return;
+                }
                 PagosDetalle.PagoId = Pagos.PagoId;
                 Pagos.PagosDetalle.Add(PagosDetalle);
                 services.ShowSuccess("Solicitud de descontar dichas cuotas de las cuotas pendientes del prestamo");

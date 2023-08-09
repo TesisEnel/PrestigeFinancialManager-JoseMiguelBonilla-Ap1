@@ -163,7 +163,6 @@
 	    double tasaMensual = tasa /100/ 12;
         double factor = (Math.Pow(1 + tasaMensual, tiempo) * tasaMensual) / (Math.Pow(1 + tasaMensual, tiempo) - 1);
         double montoCouta =  monto * factor; 
-
         double balance = monto;
         double interes, capital;
 
@@ -233,6 +232,7 @@
 
     public async Task Guardar()
     {
+
         Prestamos.CoutasOriginal = Prestamos.Coutas;
         using var response = await httpClient.PostAsJsonAsync("api/Prestamos", Prestamos);
         if (!response.IsSuccessStatusCode)
