@@ -71,6 +71,7 @@
                     <InputNumber @bind-Value="Prestamos.Coutas" class="form-control" />
                     <ValidationMessage For="@(() => Prestamos.Coutas)" />
                 </div>
+
                 <div>
                 <button type="button" class="btn btn-outline-info" @onclick="CalcularAmortizacion">Calcular Amortización <i class="oi oi-calculator" /></button>
                    </div>  
@@ -120,6 +121,7 @@
 @code {
 
     [Parameter]
+
     public int PrestamoId { get; set; }
     public int CoutasOriginal { get; set; }
     public Prestamos Prestamos { get; set; } = new Prestamos();
@@ -127,6 +129,8 @@
     public List<Clientes> ListClientes { get; set; } = new List<Clientes>();
     public List<Garantes> ListGarantes { get; set; } = new List<Garantes>();
     private List<EntradaAmortizacion> TablaAmortizacion { get; set; } = new List<EntradaAmortizacion>();
+    private List<EntradaMontoInteres> MontoInteresGenerado { get; set; } = new List<EntradaMontoInteres>();
+  
     public class EntradaAmortizacion
     {
         public int Mes { get; set; }
@@ -135,6 +139,13 @@
         public double PagoCapital { get; set; }
         public double SaldoRestante { get; set; }
     }
+
+    public class EntradaMontoInteres
+    {
+        public double Capital { get; set; }
+        public double Interes { get; set; }
+    }
+
 
     private void CalcularAmortizacion()
     {

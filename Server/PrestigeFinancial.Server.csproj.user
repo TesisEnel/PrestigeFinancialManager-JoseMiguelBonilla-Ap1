@@ -2,6 +2,6 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ActiveDebugProfile>https</ActiveDebugProfile>
-    <NameOfLastUsedPublishProfile>C:\Prestige Technology Consulting\PrestigeFinancial\Server\Properties\PublishProfiles\PrestigeFinancial - Web Deploy.pubxml</NameOfLastUsedPublishProfile>
+    <NameOfLastUsedPublishProfile>C:\Prestige Technology Consulting\PrestigeFinancial\.github\workflows\PrestigeFinancialManager.yml</NameOfLastUsedPublishProfile>
   </PropertyGroup>
 </Project>
