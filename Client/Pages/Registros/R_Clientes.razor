@@ -197,7 +197,7 @@
         });
         TipoTelefonoSeleccionado = 0;
         TelefonoSeleccionado = string.Empty;
-        services.ShowInfo("Telefono agregado satisfactoriamente");
+        services.ShowSuccess("Telefono agregado satisfactoriamente");
         StateHasChanged();
     }
 
@@ -217,12 +217,18 @@
 
     public bool ValidarDetalle()
     {
+
         ValidacionDetalle = string.Empty;
         if (TipoTelefonoSeleccionado <= 0)
         {
             services.ShowInfo("El tipo de telefono es obligatorio");
+            return false;
         }
-
+        if (TelefonoSeleccionado.Length != 10)
+        {
+        services.ShowInfo("El telefono debe tener exactamente 10 digitos");  
+        return false;
+        }
         if (String.IsNullOrWhiteSpace(TelefonoSeleccionado))
         {
             services.ShowInfo("El telefono es obligatorio");
