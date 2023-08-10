@@ -32,11 +32,11 @@
                 @*SolicitadoPor*@
                         <div class="col-md-6">
                             <label>Solicitado Por:</label>
-                            <InputSelect class="form-select" @bind-Value="Prestamos.ClienteId">
+                            <InputSelect class="form-select" @bind-Value="Prestamos.Nombres">
                                 <option value="0" disabled selected> [Seleccione] </option>
                                 @foreach (var cliente in ListClientes)
                                 {
-                                    <option value="@cliente.ClienteId">@cliente.Nombres | Cedula: @cliente.cedula  | Direccion : @cliente.Direccion </option>
+                                    <option value="@cliente.Nombres">@cliente.Nombres | Cedula: @cliente.cedula  | Direccion : @cliente.Direccion </option>
                                 }
                             </InputSelect>
                         </div>
@@ -131,6 +131,7 @@
     public int CoutasOriginal { get; set; }
     public Prestamos Prestamos { get; set; } = new Prestamos();
     public string Mensaje { get; set; } = string.Empty;
+    public double temp {get; set; } = 0;
     public List<Clientes> ListClientes { get; set; } = new List<Clientes>();
     public List<Garantes> ListGarantes { get; set; } = new List<Garantes>();
     private List<EntradaAmortizacion> TablaAmortizacion { get; set; } = new List<EntradaAmortizacion>();
@@ -161,7 +162,8 @@
         //amortizacion
 	    double tasaMensual = tasa /100/ 12;
         double factor = (Math.Pow(1 + tasaMensual, tiempo) * tasaMensual) / (Math.Pow(1 + tasaMensual, tiempo) - 1);
-        double montoCouta =  monto * factor; 
+        double montoCouta =  monto * factor;
+        double montocouta = temp; 
         double balance = monto;
         double interes, capital;
 
@@ -235,6 +237,7 @@
         Prestamos.MontoCoutas = Prestamos.MontoSolicitado * (Math.Pow(1 + (Convert.ToDouble(Prestamos.Interes) /100/ 12), Prestamos.CoutasOriginal) * (Convert.ToDouble(Prestamos.Interes) /100/ 12)) / (Math.Pow(1 + (Convert.ToDouble(Prestamos.Interes) /100/ 12), Prestamos.CoutasOriginal) - 1) * Prestamos.CoutasOriginal;
         Prestamos.Balance = Prestamos.MontoCoutas / Prestamos.CoutasOriginal;
         using var response = await httpClient.PostAsJsonAsync("api/Prestamos", Prestamos);
+
         if (!response.IsSuccessStatusCode)
         {
             services.ShowError("No fue posible guardar");

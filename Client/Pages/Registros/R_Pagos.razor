@@ -14,7 +14,7 @@
             <div class="card-body">
 
                 <div class="col-6">
-                    <label for="txtClienteID" class="form-label">ClienteID:</label>
+                    <label for="txtClienteID" class="form-label">Deudor:</label>
 
                     <InputSelect class="form-select" @bind-Value="Pagos.ClienteId">
                         @foreach (var Cliente in ListClientes)
@@ -50,7 +50,7 @@
                                 <option value="@Pagos.PrestamoId" hidden="hidden">[Seleccione]</option>
                              @foreach (var tipo in ListPrestamos.Where(P=>P.Coutas>0))
 								{
-									<option value="@tipo.PrestamoId"> ID del Prestamo = @tipo.PrestamoId | Coutas Pendientes = @tipo.Coutas  </option>
+									<option value="@tipo.PrestamoId"> Deudor = @tipo.Nombres | Coutas Pendientes = @tipo.Coutas  </option>
 								}
                             </InputSelect>
                             <ValidationMessage For="@(() => PagosDetalle.PrestamoId)" />

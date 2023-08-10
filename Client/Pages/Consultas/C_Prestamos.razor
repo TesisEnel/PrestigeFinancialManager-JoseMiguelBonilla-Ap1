@@ -18,13 +18,13 @@
                 <thead>
                     <tr>
                         <th>PrestamosId</th>
-                        <th>ID del Deudor</th>
+                        <th>Nombres</th>
                         <th>Fecha de desembolso </th>
-                        <th>MontoSolicitado</th>
-                        <th>Interes</th>
                         <th>Total del Prestamo</th>
+                        <th>MontoSolicitado</th>
+                        <th>Pago de coutas</th>
+                        <th>Tasa de interes</th>
                         <th>Cantidad de coutas </th>
-                        <th>Monto de Couta</th>
                         <th>Coutas Pendientes</th>
 
                         <th></th>
@@ -35,14 +35,14 @@
                     {
                         <tr>
                             <td>@Prestamos.PrestamoId</td>
-                            <td>@Prestamos.ClienteId</td>
+                            <td>@Prestamos.Nombres</td>
                             <td>@Prestamos.FechaPrestamo</td>
-                            <td>@Prestamos.MontoSolicitado</td>
-                            <td>@Prestamos.Interes</td>
                             <td>@Prestamos.MontoCoutas.ToString("C2")</td>
+                            <td>@Prestamos.MontoSolicitado.ToString("C2")</td>
+                            <td>@Prestamos.Balance.ToString("C2")</td>
+                            <td>@Prestamos.Interes</td>
                             <td>@Prestamos.CoutasOriginal</td>
                             <td>@Prestamos.Coutas</td>
-
                             <td><a href="RegistroPrestamos/@Prestamos.PrestamoId">Ver</a></td>
                         </tr>
                     }

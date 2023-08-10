@@ -11,7 +11,7 @@ using PrestigeFinancial.Server.DAL;
 namespace PrestigeFinancial.Server.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20230809194025_Inicial")]
+    [Migration("20230810002339_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
