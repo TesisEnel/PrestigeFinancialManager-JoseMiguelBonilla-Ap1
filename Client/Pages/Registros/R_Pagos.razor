@@ -87,15 +87,6 @@
                         </tbody>
                     </table>
 
-                    @*Total*@
-                  <div class="row m-1">
-                      <div class="row justify-content-between">
-                        <div class="col-2">
-                            <label>Total:</label>
-                            <input disabled @bind-value="Total" class="form-control" />
-                        </div>
-                    </div>
-                    </div> 
 
                     <hr>
                 </fieldset>
@@ -138,18 +129,19 @@
     public int PagoId { get; set; }
     
     public Pagos Pagos { get; set; } = new Pagos();
+
     public PagosDetalle PagosDetalle { get; set; } = new PagosDetalle();
 
     private List<Prestamos> ListPrestamos = new List<Prestamos>();
 
     private List<Clientes> ListClientes = new List<Clientes>();
     public string ValidacionDetalle { get; set; } = string.Empty;
-
     public int TipoPrestamoSeleccionado { get; set; } = 0;
     public int Coutas { get; set; } = 0;
-
-    public double Total { get; set; }
+    public double Total { get; set; } = 0;
     public string Mensaje { get; set; }
+
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -162,9 +154,11 @@
         }
     }
 
+    
     private async Task Buscar()
     {
         var response = await httpClient.GetAsync($"api/Pagos/{PagoId}"); 
+
         if (response.IsSuccessStatusCode)
         {
             Pagos = await response.Content.ReadFromJsonAsync<Pagos>();
@@ -189,6 +183,8 @@
 
         return prestamos;
     }
+
+   
 
     public async Task Aplicar()
     {
@@ -251,48 +247,50 @@
             return true;
         }
     }
-    public async Task AgregarDetalle()
+// ...
+public async Task AgregarDetalle()
+{
+    if (ValidarDetalle())
     {
-        if (ValidarDetalle())
+        if (PagosDetalle.Cantidadpagos <= 0)
         {
-            if (PagosDetalle.Cantidadpagos < 0)
+            services.ShowError("La cantidad debe ser mayor que cero");
+            return;
+        }
+
+        var prestamos = await BuscarPrestamos(PagosDetalle.PrestamoId);
+
+        if (prestamos != null)
+        {
+            if (PagosDetalle.Cantidadpagos > prestamos.Coutas)
             {
-                services.ShowError("La cantidad debe ser mayor que cero");
+                services.ShowError("La cantidad de cuotas a pagar es mayor a las cuotas pendientes del préstamo");
+                services.ShowInfo("Sugerimos revisar los datos ingresados");
+                return;
+            }
+            if (prestamos.Coutas <= 0)
+            {
+                services.ShowError("El préstamo no tiene cuotas pendientes");
+                services.ShowInfo("Sugerimos revisar los datos ingresados");
                 return;
             }
 
-            var prestamos = await BuscarPrestamos(PagosDetalle.PrestamoId);
+            PagosDetalle.PagoId = Pagos.PagoId;
+            PagosDetalle.ValorPagado = prestamos.MontoCoutas; // Agregar esta línea para guardar el MontoCoutas en el detalle
+            Pagos.PagosDetalle.Add(PagosDetalle);
+            services.ShowSuccess("Solicitud de descontar dichas cuotas de las cuotas pendientes del préstamo");
+            PagosDetalle = new PagosDetalle();
 
-            if (Pagos != null)
-            {
-                int Temp = 0;
+            Total = Pagos.PagosDetalle.Sum(detalle => detalle.ValorPagado * detalle.Cantidadpagos);
+            StateHasChanged();
 
-                if (PagosDetalle.Cantidadpagos > prestamos.Coutas)
-                {
-                    services.ShowError("La cantidad de coutas a pagar es mayor a las coutas establecidas del prestamo");
-                    services.ShowInfo("Sugerimos revisar los datos ingresados");
-                    return;
-                }
-                if (prestamos.Coutas <= 0)
-                {
-                    services.ShowError("Dicho prestamo no tiene coutas pendientes");
-                    services.ShowInfo("Sugerimos revisar los datos ingresados");
-                    return;
-                }
-                PagosDetalle.PagoId = Pagos.PagoId;
-                Pagos.PagosDetalle.Add(PagosDetalle);
-                services.ShowSuccess("Solicitud de descontar dichas cuotas de las cuotas pendientes del prestamo");
-                PagosDetalle = new PagosDetalle();
-
-                foreach (var item in Pagos.PagosDetalle)
-                {
-                    Temp = item.Cantidadpagos;
-                }
-             
-                Pagos.CantidadCoutasPagadas = Temp;
-            }
         }
     }
+}
+// ...
+
+
+
     private void Nuevo()
     {
         Pagos = new Pagos();

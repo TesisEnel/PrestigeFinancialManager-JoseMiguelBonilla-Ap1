@@ -16,63 +16,71 @@ public class PrestamosController : ControllerBase
         _context = context;
     }
 
-     [HttpGet]
-        public IEnumerable<Prestamos> Get()
+    // GET: api/Prestamos
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Prestamos>>> GetPrestamos()
+    {
+      if (_context.Prestamos == null)
+      {
+          return NotFound();
+      }
+        return await _context.Prestamos.ToListAsync();
+    }
+
+    // GET: api/Prestamos/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Prestamos>> GetPrestamos(int id)
+    {
+      if (_context.Prestamos == null)
+      {
+          return NotFound();
+      }
+        var Prestamos = await _context.Prestamos.FindAsync(id);
+
+        if (Prestamos == null)
         {
-            return _context.Prestamos.AsNoTracking().ToList();
+            return NotFound();
         }
 
-        [HttpGet("{id}")]
-        public ActionResult<Prestamos> GetById(int id)
+        return Prestamos;
+    }
+
+    // POST: api/Prestamos
+    [HttpPost]
+    public async Task<ActionResult<Prestamos>> PostPrestamos(Prestamos Prestamos)
+    {
+        if (PrestamosExists(Prestamos.PrestamoId))
+            _context.Prestamos.Update(Prestamos);
+        else
+            _context.Prestamos.Add(Prestamos);
+
+        await _context.SaveChangesAsync();
+
+        return Ok(Prestamos);
+    }
+
+    // DELETE: api/Prestamos/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeletePrestamos(int id)
+    {
+        if (_context.Prestamos == null)
         {
-            var prestamo = _context.Prestamos
-                .Where(p => p.PrestamoId == id)
-                .AsNoTracking()
-                .SingleOrDefault();
-
-            if (prestamo == null)
-            {
-                return NotFound();
-            }
-
-            return prestamo;
+            return NotFound();
+        }
+        var Prestamos = await _context.Prestamos.FindAsync(id);
+        if (Prestamos == null)
+        {
+            return NotFound();
         }
 
-        [HttpPost]
-        public ActionResult<Prestamos> Create(Prestamos prestamo)
-        {
-            _context.Prestamos.Add(prestamo);
-            _context.SaveChanges();
+        _context.Prestamos.Remove(Prestamos);
+        await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = prestamo.PrestamoId }, prestamo);
-        }
+        return NoContent();
+    }
 
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, Prestamos prestamo)
-        {
-            if (id != prestamo.PrestamoId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(prestamo).State = EntityState.Modified;
-            _context.SaveChanges();
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var prestamo = _context.Prestamos.Find(id);
-            if (prestamo == null)
-            {
-                return NotFound();
-            }
-
-            _context.Prestamos.Remove(prestamo);
-            _context.SaveChanges();
-
-            return NoContent();
-        }
+    private bool PrestamosExists(int id)
+    {
+        return (_context.Prestamos?.Any(e => e.PrestamoId == id)).GetValueOrDefault();
+    }
 }

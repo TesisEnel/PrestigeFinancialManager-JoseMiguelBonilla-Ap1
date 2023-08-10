@@ -3,7 +3,6 @@
 @inject HttpClient httpClient
 @inject IToastService services 
 
-
 <EditForm Model="Prestamos" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
 
@@ -232,8 +231,9 @@
 
     public async Task Guardar()
     {
-
         Prestamos.CoutasOriginal = Prestamos.Coutas;
+        Prestamos.MontoCoutas = Prestamos.MontoSolicitado * (Math.Pow(1 + (Convert.ToDouble(Prestamos.Interes) /100/ 12), Prestamos.CoutasOriginal) * (Convert.ToDouble(Prestamos.Interes) /100/ 12)) / (Math.Pow(1 + (Convert.ToDouble(Prestamos.Interes) /100/ 12), Prestamos.CoutasOriginal) - 1) * Prestamos.CoutasOriginal;
+        Prestamos.Balance = Prestamos.MontoCoutas / Prestamos.CoutasOriginal;
         using var response = await httpClient.PostAsJsonAsync("api/Prestamos", Prestamos);
         if (!response.IsSuccessStatusCode)
         {

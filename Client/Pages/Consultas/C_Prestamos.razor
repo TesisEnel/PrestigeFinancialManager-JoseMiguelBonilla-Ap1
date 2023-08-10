@@ -22,7 +22,9 @@
                         <th>Fecha de desembolso </th>
                         <th>MontoSolicitado</th>
                         <th>Interes</th>
-                        <th>Coutas Establecidas</th>
+                        <th>Total del Prestamo</th>
+                        <th>Cantidad de coutas </th>
+                        <th>Monto de Couta</th>
                         <th>Coutas Pendientes</th>
 
                         <th></th>
@@ -37,6 +39,7 @@
                             <td>@Prestamos.FechaPrestamo</td>
                             <td>@Prestamos.MontoSolicitado</td>
                             <td>@Prestamos.Interes</td>
+                            <td>@Prestamos.MontoCoutas.ToString("C2")</td>
                             <td>@Prestamos.CoutasOriginal</td>
                             <td>@Prestamos.Coutas</td>
 
@@ -60,6 +63,7 @@
 </div>
 
 @code {
+
     public List<Prestamos>? Prestamos { get; set; }
     public int conteo { get; set; }
 
