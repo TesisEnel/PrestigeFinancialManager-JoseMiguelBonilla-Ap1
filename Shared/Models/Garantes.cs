@@ -7,8 +7,9 @@ namespace PrestigeFinancial.Shared.Models
     {
         [Key]
         public int GaranteId { get; set; }
-        [Required(ErrorMessage = "El Nombre es requerido")]
         public int ClienteId { get; set; }
+        [Required(ErrorMessage = "El Nombre es requerido")]
+
         public string? Nombres { get; set; }
         [Required(ErrorMessage = "Cedula es requerido")]
 
