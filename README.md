@@ -1,3 +1,4 @@
+
 # PrestigeFinancialManager
 Information system aimed at companies focused on financial services.
 
